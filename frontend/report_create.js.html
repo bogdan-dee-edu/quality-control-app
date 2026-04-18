@@ -1,0 +1,116 @@
+<script>
+
+const ReportCreator = ((scriptUrl) => {
+
+  let form = null;
+
+  function blockButton() {
+    if  (form) {
+      const btn = form.querySelector('button[type="submit"]');
+      if (btn) {
+        btn.setAttribute('data-value', btn.innerHTML);
+        btn.innerHTML = 'Creating <span class="loading loading-dots loading-xs"></span>';
+        btn.disabled = true;
+      }
+    }
+  }
+  
+  function unblockButton() {
+    if  (form) {
+      const btn = form.querySelector('button[type="submit"]');
+      if (btn) {
+        btn.innerHTML = btn.getAttribute('data-value');
+        btn.disabled = false;
+      }
+    }
+  }
+
+  function renderAlert(message = '') {
+    const alertHtml = `
+    <div role="alert" class="alert alert-error">
+      <span>${message}</span>
+    </div>
+    `;
+
+    if (form) {
+      const alertContainer = form.querySelector('[data-alert]');
+      if (alertContainer) {
+        alertContainer.innerHTML = alertHtml;
+      }
+    }
+  }
+
+  function clearAlert() {
+    if (form) {
+      const alertContainer = form.querySelector('[data-alert]');
+      if (alertContainer) {
+        alertContainer.innerHTML = '';
+      }
+    }
+  }
+
+  function callBackend(params) {
+    return new Promise((resolve, reject) => {
+      google.script.run
+        .withSuccessHandler((res) => {
+          resolve(res);
+        })
+        .withFailureHandler(reject)
+        .runAPI('Report', 'create', params);
+    });
+  }
+
+  function submit(formData) {
+    let error = null;
+    blockButton();
+    clearAlert();
+
+    callBackend(formData)
+    .then((data) => {
+      if (data && data.success) {
+        form.innerHTML = `
+        <div class="text-center">
+          <div role="alert" class="alert alert-success">
+            <span>Report has been successfully created!</span>
+          </div>
+          <div class="mt-2">
+            <a href="${scriptUrl}?action=report&id=${data.file_id}" class="btn btn-wide btn-info">Open</a>
+          </div>
+        </div>
+        `;
+      } else {
+        if (data && data.error) {
+          error = data.error;
+        } else {
+          error = 'Unknown error from API';
+        }
+      }
+    })
+    .catch((err) => {
+      console.error(err);
+      error = err.toString();
+    })
+    .finally(() => {
+      if (error !== null) renderAlert(error);
+      unblockButton();
+    });
+  }
+
+  function formSubmitListener(event) {
+    event.preventDefault();
+    form = event.target;
+
+    const formData = new FormData(this);
+    const formObject = Object.fromEntries(formData.entries());
+
+    submit(formObject);
+  }
+
+  return {
+    'formSubmitListener': formSubmitListener
+  }
+})('<?!= getUrl(); ?>');
+
+
+
+</script>

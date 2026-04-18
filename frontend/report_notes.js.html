@@ -1,0 +1,256 @@
+<script>
+
+const ReportNotes = ((UserTimeZone, currentUserEmail) => {
+  
+  const container = document.getElementById('stage_notes');
+  const loadingAlert = container.innerHTML;
+  const modal = document.getElementById('stage_notes_modal');
+  const form = document.getElementById('stage_notes_form');
+  const addBtn = document.getElementById('notes_add_btn');
+  const notesMaxCount = document.getElementById('notes_max_count');
+
+  let submitListenerLoaded = false;
+  let reportId = null;
+  let stageId = null;
+
+  function init(updReportId, updStageId) {
+    reportId = updReportId;
+    stageId = updStageId;
+
+    if (! submitListenerLoaded) {
+      form.addEventListener('submit', formSubmitListener);
+      submitListenerLoaded = true;
+    }
+  }
+
+  function callBackend(action, params) {
+    return new Promise((resolve, reject) => {
+      google.script.run
+        .withSuccessHandler((res) => {
+          resolve(res);
+        })
+        .withFailureHandler(reject)
+        .runAPI('ReportNotes', action, params);
+    });
+  }
+
+  function list() {
+    container.innerHTML = loadingAlert;
+    renderMaxCount(0, 0);
+    let dataRendered = false;
+    let error = null;
+
+    callBackend('list', {'reportId': reportId, 'stageId': stageId})
+    .then((data) => {
+      if (data && data.success) {
+        // alert('notes loaded');
+        dataRendered = render(data.list, data.maxCount);
+      } else {
+        if (data && data.error) {
+          error = data.error;
+        } else {
+          error = 'Unknown error from API';
+        }
+      }
+    })
+    .catch((err) => {
+      error = err.toString();
+    })
+    .finally(() => {
+      if (error !== null) console.error(error);
+      if (! dataRendered) renderEmptyAlert();
+    });
+  }
+
+  function render(data, maxCount) {
+    let isRendered = false;
+    let content = '';
+    if (data.length > 0) {
+      for (let key in data) {
+        content += renderNote(data[key]);
+      }
+
+      container.innerHTML = content;
+      isRendered = true;
+      editOnClickListener();
+    }
+    renderMaxCount(data.length, maxCount);
+
+    return isRendered;
+  }
+
+  function renderNote(note) {
+    let time = new Date(note.time);
+    let displayTime = time.toLocaleString(UserTimeZone.getDefaultLocale(), {timeZone: UserTimeZone.getTimeZoneName()});
+
+    let email = note.user;
+    if (email.indexOf('@') !== -1) {
+      let parseUserEmail = email.split('@');
+      let emailDomain = parseUserEmail.at(-1);
+      let emailUsername = parseUserEmail.at(0).split(' ').at(-1);
+      email = `${emailUsername}@${emailDomain}`;
+    }
+
+    return `
+    <div class="chat chat-end" data-notes-user="${email}" data-notes-id="${note.row_index}">
+      <div class="chat-header">
+        ${note.user}
+      </div>
+      <div class="chat-bubble text-sm">${note.text.toString().replaceAll("\n", "<br>")}</div>
+      <div class="chat-footer"><time class="text-xs opacity-50">${displayTime}</time></div>
+    </div>
+    `;
+  }
+
+  function renderEmptyAlert() {
+    const alertHtml = `
+    <li class="list-row flex justify-center items-center">
+      <div role="alert" class="alert alert-default w-full">
+        Nobody has left any notes yet.
+      </div>
+    </li>
+    `;
+
+    container.innerHTML = alertHtml;
+  }
+
+  function renderMaxCount(count, maxCount) {
+    notesMaxCount.innerText = `${count}/${maxCount}`;
+    if (count >= maxCount) {
+      addBtn.disabled = true;
+    } else {
+      addBtn.disabled = false;
+    }
+  }
+
+  function showAddModal() {
+    form.reset();
+    modal.showModal();
+  }
+
+  function showEditModal(rowIndex) {
+    form.reset();
+    const note = container.querySelector(`[data-notes-id="${rowIndex}"]`);
+    if (! note) return;
+
+    form.querySelector('input[name="rowIndex"]').value = rowIndex;
+    const text = note.querySelector('.chat-bubble');
+    if(text) modal.querySelector('textarea').value = text.innerText;
+
+    modal.showModal();
+  }
+
+  function editOnClickListener() {
+    container.querySelectorAll('.chat-bubble').forEach(elem => {
+      let parent = elem.parentElement;
+      if (parent.getAttribute('data-notes-user') == currentUserEmail) {
+        elem.addEventListener('click', function (event) {
+          showEditModal(parent.getAttribute('data-notes-id'));
+        });
+      }
+    });
+  }
+
+  function blockButton() {
+    const btn = form.querySelector('button[type="submit"]');
+    if (btn) {
+      btn.setAttribute('data-value', btn.innerHTML);
+      btn.innerHTML = 'Saving <span class="loading loading-dots loading-xs"></span>';
+      btn.disabled = true;
+    }
+  }
+  
+  function unblockButton() {
+    const btn = form.querySelector('button[type="submit"]');
+    if (btn) {
+      btn.innerHTML = btn.getAttribute('data-value');
+      btn.disabled = false;
+    }
+  }
+
+  function renderFormAlert(message = '') {
+    const alertHtml = `
+    <div role="alert" class="alert alert-error mt-2">
+      <span>${message}</span>
+    </div>
+    `;
+
+    const alertContainer = form.querySelector('[data-alert]');
+    if (alertContainer) {
+      alertContainer.innerHTML = alertHtml;
+    }
+  }
+
+  function clearFormAlert() {
+    const alertContainer = form.querySelector('[data-alert]');
+    if (alertContainer) {
+      alertContainer.innerHTML = '';
+    }
+  }
+
+  function formSubmitListener(event) {
+    event.preventDefault();
+
+    const formData = new FormData(this);
+    const formObject = Object.fromEntries(formData.entries());
+
+    submit(formObject);
+  }
+
+  function submit(formData) {
+    const params = {
+      'reportId': reportId, 
+      'stageId': stageId
+    };
+    let error = null;
+    blockButton();
+    clearFormAlert();
+
+    let callAction = 'add';
+    if (parseInt(formData['rowIndex']) > 0) {
+      callAction = 'edit';
+    }
+
+    callBackend(callAction, { ...params, ...formData })
+    .then((data) => {
+      if (data && data.success) {        
+        let noteHTML = renderNote(data.note);
+        if (parseInt(formData['rowIndex']) > 0) {
+          let noteElem = container.querySelector(`[data-notes-id="${data.note.row_index}"]`);
+          if (noteElem) noteElem.outerHTML = noteHTML;
+        } else {
+          if (data.count === 1) {
+            container.innerHTML = noteHTML;
+          } else {
+            container.insertAdjacentHTML('beforeend', noteHTML);
+          }
+          editOnClickListener();
+        }
+        renderMaxCount(data.count, data.maxCount);
+        modal.close();
+      } else {
+        if (data && data.error) {
+          error = data.error;
+        } else {
+          error = 'Unknown error from API';
+        }
+      }
+    })
+    .catch((err) => {
+      error = err.toString();
+    })
+    .finally(() => {
+      if (error !== null) renderFormAlert(error);
+      unblockButton();
+    });
+  }
+
+  return {
+    'init': init,
+    'list': list,
+    'showAddModal': showAddModal
+  }
+
+})(UserTimeZone, '<?= user.email ?>');
+
+</script>

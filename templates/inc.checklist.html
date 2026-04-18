@@ -1,0 +1,13 @@
+<? for (let item of checklist.list) { ?>
+  
+  <? if (item.group !== '') { ?>
+    <div class="flex w-full flex-col">
+      <div class="divider divider-info"><?= item.group ?></div>
+    </div>
+  <? } ?>
+
+  <div class="card card-border bg-base-100 mb-2 w-full" data-checklist-item="<?= item.number ?>">
+    <?!= include('templates/inc.checklist_item', {item: item, stageStatus: meta.status}) ?>
+  </div>
+
+<? } ?>

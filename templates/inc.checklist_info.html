@@ -1,0 +1,18 @@
+<div class="px-2 py-1 mt-2 bg-info/50">
+  <span class="font-semibold">Stage: </span><span><?= stage_name ?></span>
+</div>
+
+<div class="px-2 py-1">
+  <span class="font-semibold">Status: </span>
+  <span id="stage_status_badge"><?!= include('templates/inc.status_badge', {'type': 'stage', 'status': status}) ?></span>
+</div>
+
+<div class="px-2 py-1">
+  <span class="font-semibold">Submitted by: </span>
+  <span class="text-sm" data-submitted-by><?= submitted_by ?></span>
+</div>
+
+<div class="px-2 py-1">
+  <span class="font-semibold">Submitted at: </span>
+  <span data-submitted-at data-timezone><?= submitted_at ?></span>
+</div>

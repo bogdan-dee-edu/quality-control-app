@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>VM MANUFACTURING Quality Control - [<?= props.appId ?>]</title>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <base target="_top">
+  </head>
+
+  <body class="bg-base-300 min-h-screen flex flex-col">
+    <?!= include('templates/inc.body_header', {props: props, user: user, i18n: i18n}) ?>
+
+    <main class="flex-grow w-full max-w-5xl mx-auto px-2 py-4">
+      <div id="toast-container"></div>
+
+      <div>
+        <ul class="list bg-base-200 mb-2">
+          <li class="p-2 tracking-wide">
+            Most Recent Reports: <button class="btn btn-xs btn-primary float-end" onclick="create_report_modal.showModal();">Create new</button>
+          </li>
+        </ul>
+        <ul class="list bg-base-100 rounded-box shadow-md" id="report_files_list">
+          <li class="list-row flex justify-center items-center">
+            <span class="skeleton skeleton-text">Loading latest reports...</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="fab">
+        <button class="fab-main-action btn btn-circle btn-lg btn-primary" onclick="create_report_modal.showModal()">
+          <svg
+            aria-label="New"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 16 16"
+            fill="currentColor"
+            class="size-6"
+          >
+            <path
+              d="M8.75 3.75a.75.75 0 0 0-1.5 0v3.5h-3.5a.75.75 0 0 0 0 1.5h3.5v3.5a.75.75 0 0 0 1.5 0v-3.5h3.5a.75.75 0 0 0 0-1.5h-3.5v-3.5Z"
+            />
+          </svg>
+        </button>
+      </div>
+
+      <dialog id="create_report_modal" class="modal">
+        <div class="modal-box">
+          <form method="dialog">
+            <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+          </form>
+
+          <h3 class="text-lg font-bold">Create new quality control report:</h3>
+          <form id="create_report_form">
+            <div>
+              <div data-alert="error"></div>
+              <fieldset class="fieldset">
+                <legend class="fieldset-legend">Device serial number:</legend>
+                <input type="text" name="serial" class="input w-full" placeholder="Type here" required/>
+
+                <legend class="fieldset-legend">Device version:</legend>
+                <select class="select w-full" name="version" required>
+                  <option value="" disabled selected>select version</option>
+                  <? for (let ver of props.productVersions.split(',')) { ?>
+                    <option value="<?= ver ?>"><?= ver ?></option>
+                  <? } ?>
+                </select>
+              </fieldset>
+            </div>
+
+            <div class="modal-action justify-center">
+              <button type="submit" class="btn btn-wide btn-primary">Create report</button>
+            </div>
+          </form>
+        </div>
+      </dialog>
+
+      <?!= include('templates/inc.main_search', {props: props, user: user, i18n: i18n}) ?>
+    </main>
+
+    <?!= include('templates/inc.body_footer', {props: props, i18n: i18n, user: user}) ?>
+    <?!= include('frontend/toast.js'); ?>
+    <?!= include('frontend/timezone.js', {userProps: user.props}); ?>
+    <?!= include('frontend/cache.js'); ?>
+    <?!= include('frontend/search.js'); ?>
+    <?!= include('frontend/report_create.js'); ?>
+    <?!= include('frontend/reports.js'); ?>
+    
+    <script>
+      window.onload = function () {
+        FilesListLoader.init();
+        FilesListLoader.run({'excludeStatus': 'completed'});
+      }
+    </script>
+
+    
+  </body>
+</html>

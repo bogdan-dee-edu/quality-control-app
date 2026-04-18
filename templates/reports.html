@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>VM MANUFACTURING Quality Control - [<?= props.appId ?>]</title>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <base target="_top">
+  </head>
+
+  <body class="bg-base-300 min-h-screen flex flex-col">
+    <?!= include('templates/inc.body_header', {props: props, user: user, i18n: i18n}) ?>
+
+    <main class="flex-grow w-full max-w-5xl mx-auto px-2 py-4">
+      <div id="toast-container"></div>
+
+      <div class="flex flex-col md:flex-row gap-2">
+        <div class="w-full md:w-1/3">
+          <ul class="menu w-full bg-base-100 rounded-box" id="report_folders_list">
+            <li class="menu-title">Folders:</li>
+            
+            <? for(let folder of folders){ ?>
+              <li>
+                <a data-folder-id="<?= folder.id ?>"<?!= (folder.id == currentFolderId ? ' class="menu-active"' : '') ?>>
+                  <?= folder.name ?>
+                </a>
+              </li>
+            <? } ?>
+          </ul>
+        </div>
+
+        <div class="w-full md:w-3/4">
+          <ul class="list bg-base-100 rounded-box shadow-md" id="report_files_list">
+            <li class="list-row flex justify-center items-center">
+              <span class="skeleton skeleton-text">Loading reports...</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <?!= include('templates/inc.main_search', {props: props, user: user, i18n: i18n}) ?>
+    </main>
+
+    <?!= include('templates/inc.body_footer', {props: props, i18n: i18n, user: user}) ?>
+    <?!= include('frontend/toast.js'); ?>
+    <?!= include('frontend/timezone.js', {userProps: user.props}); ?>
+    <?!= include('frontend/cache.js'); ?>
+    <?!= include('frontend/search.js'); ?>
+    <?!= include('frontend/report_create.js'); ?>
+    <?!= include('frontend/reports.js'); ?>
+    <script>
+      window.onload = function () {
+        FilesListLoader.init();
+        FilesListLoader.run();
+      }
+    </script>
+
+    
+  </body>
+</html>

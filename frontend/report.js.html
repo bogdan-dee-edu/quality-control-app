@@ -1,0 +1,175 @@
+<script>
+
+const ReportLoader = ((scriptUrl, Toast, ReportStatusBadge, ReportNotes) => {
+
+  const stagesMenuContainer = document.getElementById('stages-menu');
+  const reportStatusBadgeContainer = document.getElementById('report_status_badge');
+  const stageCompleteContainer = document.getElementById('stage_complete');
+  const checklistContainer = document.getElementById('checklist');
+  const checklistLoadingAlert = checklistContainer.innerHTML;
+  const stageInfoContainer = document.getElementById('stage_info');
+  const stageInfoLoadingAlert = stageInfoContainer.innerHTML;
+
+  let isReportInfoRendered = false;
+  let reportId = null;
+
+  function init(reportFileId) {
+    reportId = reportFileId;
+    renderReportStatusBadge();
+
+
+    stagesMenuContainer.querySelectorAll('a').forEach(elem => {
+      elem.addEventListener('click', function(event) {
+        event.preventDefault();
+
+        // run stage loading
+        const stageId = event.target.getAttribute('data-stage-id');
+        loadStage(stageId);
+
+        // activate menu items
+        const activeLinkClass = 'menu-active';
+        const activeLink = stagesMenuContainer.querySelector(`.${activeLinkClass}`);
+        if (activeLink) activeLink.classList.remove(activeLinkClass);
+        event.target.classList.add(activeLinkClass);
+
+        localStorage.setItem(`active_stage_${reportId}`, stageId); // remember stage id for page reloading
+      });
+    });
+
+    // load these status indicators a bit later 
+    setTimeout(() => {
+      loadStagesStatuses();
+      // setInterval(loadStagesStatuses, 60000); // run it every minute to update indicators periodically
+    }, 500);
+  }
+
+  function callBackend(action, params) {
+    return new Promise((resolve, reject) => {
+      google.script.run
+        .withSuccessHandler((res) => {
+          resolve(res);
+        })
+        .withFailureHandler(reject)
+        .runAPI('Report', action, params);
+    });
+  }
+
+  function loadStagesStatuses() {
+    callBackend('stagesStatuses', {'reportId': reportId})
+    .then((data) => {
+      if (data && data.success) {
+        for (let stage of data.stages) {
+          let statusIndicator = stagesMenuContainer.querySelector(`[data-menu-status="${stage['id']}"]`);
+          if (statusIndicator) {
+            
+            let newClass = 'status-neutral';
+            let stageStatus = stage['status'].toLowerCase();
+            switch (stageStatus) {
+              case 'new':
+                newClass = 'status-warning';
+                break;
+              case 'failed':
+                newClass = 'status-error';
+                break;
+              case 'in_progress':
+                newClass = 'status-info';
+                break;
+              case 'passed':
+                newClass = 'status-accent';
+                break;
+              case 'completed':
+                newClass = 'status-success';
+                break;
+            }
+
+            statusIndicator.className = 'status';
+            statusIndicator.classList.add(newClass);
+          }
+        }
+      }
+    })
+    .catch(err => console.error(err));
+  }
+
+  function loadStage(stageId) {
+    checklistContainer.innerHTML = checklistLoadingAlert;
+    stageInfoContainer.innerHTML = stageInfoLoadingAlert;
+    let dataRendered = false;
+    let error = null;
+
+    callBackend('stage', {'reportId': reportId, 'stageId': stageId})
+    .then((data) => {
+      if (data && data.success) {
+        dataRendered = renderStage(stageId, data.data, data.info_html, data.checklist_html);
+      } else {
+        if (data && data.error) {
+          error = data.error;
+        } else {
+          error = 'Unknown error from API';
+        }
+      }
+    })
+    .catch((err) => {
+      console.error(err);
+      error = err.toString();
+    })
+    .finally(() => {
+      if (error !== null) Toast.showError(error);
+      if (! dataRendered) renderAlert();
+    });
+
+    // load notes
+    ReportNotes.init(reportId, stageId);
+    ReportNotes.list();
+  }
+
+  function renderStage(stageId, meta, infoHtml, checklistHtml) {
+    if (! isReportInfoRendered) {
+      document.querySelectorAll('[data-value]').forEach(elem => {
+        const key = elem.getAttribute('data-value');
+        if (meta[key] !== undefined) {
+          elem.innerHTML = meta[key];
+        }
+      });
+
+      isReportInfoRendered = true;
+    }
+
+    // check if stage is passed and ready to be submitted
+    if (meta.status.toLowerCase() === 'passed') {
+      stageCompleteContainer.classList.remove('hidden');
+    }
+
+    // insert html rendered on server side to the containers
+    stageInfoContainer.innerHTML = infoHtml;
+    checklistContainer.innerHTML = checklistHtml;
+    ChecklistProcessor.init(reportId, stageId);
+
+    return true;
+  }
+
+  function renderAlert() {
+    const alertHtml = `
+    <li class="list-row flex justify-center items-center">
+      <div role="alert" class="alert alert-error w-full">
+        Can not load checklist information.
+      </div>
+    </li>
+    `;
+
+    checklistContainer.innerHTML = alertHtml;
+  }
+  function renderReportStatusBadge() {
+    const status = reportStatusBadgeContainer.getAttribute('data-report-status');
+    const html = ReportStatusBadge.render(status, 'sm');
+    reportStatusBadgeContainer.innerHTML = html;
+  }
+
+  return {
+    'init': init,
+    'loadStage': loadStage
+  }
+
+})('<?!= getUrl(); ?>', Toast, ReportStatusBadge, ReportNotes);
+
+</script>

@@ -1,0 +1,32 @@
+<script>
+const CacheCleaner = (() => {
+  
+  function callBackend(action, params) {
+    return new Promise((resolve, reject) => {
+      google.script.run
+        .withSuccessHandler((res) => {
+          resolve(res);
+        })
+        .withFailureHandler(reject)
+        .runAPI('Index', action, params);
+    });
+  }
+
+  function clear(btn) {
+    btn.setAttribute('data-value', btn.innerHTML);
+    btn.innerHTML = 'clearing <span class="loading loading-dots loading-xs"></span>';
+    btn.disabled = true;
+
+    callBackend('clearCache')
+    .then((data) => {
+      btn.innerHTML = btn.getAttribute('data-value');
+      btn.disabled = false;
+    })
+    .catch(err => console.error(err));
+  }
+
+  return {
+    'clear': clear
+  }
+})();
+</script>

@@ -1,0 +1,22 @@
+<script>
+const ReportStatusBadge = {
+  render: (status, size = 'xs') => {
+    let color = 'neutral';
+    switch (status.toLowerCase()) {
+      case 'new':
+        color = 'warning';
+        break;
+      case 'failed':
+        color = 'error';
+        break;
+      case 'in_progress':
+        color = 'info';
+        break;
+      case 'completed':
+        color = 'success';
+        break;
+    }
+    return `<div class="badge badge-${color} badge-${size}">${status}</div>`;
+  }
+}
+</script>

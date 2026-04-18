@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>VM MANUFACTURING Quality Control - [<?= props.appId ?>]</title>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <base target="_top">
+  </head>
+
+  <body class="bg-base-300 min-h-screen flex flex-col">
+    <?!= include('templates/inc.body_header', {props: props, user: user, i18n: i18n}) ?>
+
+    <main class="flex-grow w-full max-w-5xl mx-auto px-2 py-4">
+      <div id="toast-container"></div>
+
+      <div class="flex flex-col md:flex-row gap-2">
+        <div class="w-full md:p-2 md:w-1/2 bg-base-100 rounded-box">
+          
+          <div class="text-center p-2 join w-full">
+            <a class="btn btn-default btn-sm btn-square join-item" href="<?= report.url ?>" target="_blank">
+              <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 20 20"><path fill="currentColor" d="M15.534 1.36L14.309 0H4.662c-.696 0-.965.516-.965.919v3.63H5.05V1.653c0-.154.13-.284.28-.284h6.903c.152 0 .228.027.228.152v4.82h4.913c.193 0 .268.1.268.246v11.77c0 .246-.1.283-.25.283H5.33a.287.287 0 0 1-.28-.284V17.28H3.706v1.695c-.018.6.302 1.025.956 1.025H18.06c.7 0 .939-.507.939-.969V5.187l-.35-.38l-3.116-3.446Zm-1.698.16l.387.434l2.596 2.853l.143.173h-2.653c-.2 0-.327-.033-.38-.1c-.053-.065-.084-.17-.093-.313V1.52Zm-1.09 9.147h4.577v1.334h-4.578v-1.334Zm0-2.666h4.577v1.333h-4.578V8Zm0 5.333h4.577v1.334h-4.578v-1.334ZM1 5.626v10.667h10.465V5.626H1Zm5.233 6.204l-.64.978h.64V14H3.016l2.334-3.51l-2.068-3.156H5.01L6.234 9.17l1.223-1.836h1.727L7.112 10.49L9.449 14H7.656l-1.423-2.17Z"/></svg>
+            </a>
+            <a class="btn btn-default btn-sm join-item" href="<?= `${getUrl()}?action=report&id=${report.id}` ?>">Checklist</a>
+            <a class="btn btn-default btn-sm join-item" disabled>Photos</a>
+            <a class="btn btn-default btn-sm join-item" href="<?= `${getUrl()}?action=report_action_logs&id=${report.id}` ?>">Action Logs</a>
+          </div>
+          
+          <div class="px-2 py-1 bg-info/50">
+            <span class="font-semibold">Device: </span>
+            <span><?= report.name ?></span>
+          </div>
+          <div class="px-2 py-1">
+            <span class="font-semibold">Version: </span>
+            <span data-value="device_version"><span class="skeleton skeleton-text">loading...</span></span>
+          </div>
+          <div class="px-2 py-1">
+            <span class="font-semibold">Status: </span>
+            <span id="report_status_badge" data-report-status="<?= report.status ?>"><span class="skeleton skeleton-text">loading...</span></span>
+          </div>
+          <div class="px-2 py-1">
+            <span class="font-semibold">Created by: </span>
+            <span data-value="file_created_by"><span class="skeleton skeleton-text">loading...</span></span>
+          </div>
+          <div class="px-2 py-1">
+            <span class="font-semibold"> Created at: </span>
+            <span data-timezone data-value="file_created_at"><span class="skeleton skeleton-text">loading...</span></span>
+          </div>
+          
+        </div>
+        <div class="w-full md:w-1/2 bg-base-100 rounded-box" id="stages-menu">
+
+          <ul class="menu w-full">
+            <li class="menu-title">All stages:</li>
+            <? for(let stage of report.stages){ ?>
+              <li>
+                <a data-stage-id="<?= stage.id ?>" href="#">
+                  <div data-menu-status="<?= stage.id ?>" aria-label="status" class="status status-default animate-bounce"></div>
+                  <?= stage.name ?>
+                </a>
+              </li>
+            <? } ?>
+          </ul>
+
+        </div>
+      </div>
+
+
+      <div class="flex flex-col md:flex-row gap-2 pt-2 mt-2">
+        <div class="w-full md:w-1/2 md:p-2 bg-base-100 rounded-box" id="stage_info">
+          <div class="flex flex-col gap-4 p-4">
+            <div class="skeleton h-4 w-full"></div>
+            <div class="skeleton h-4 w-1/4"></div>
+            <div class="skeleton h-4 w-3/4"></div>
+            <div class="skeleton h-4 w-1/2"></div>
+          </div>
+        </div>
+        <div class="w-full md:w-1/2 md:p-2 bg-base-100 rounded-box">
+          <div id="stage_notes">
+            <div class="flex flex-col gap-2 p-2">
+              <div class="skeleton h-16 w-full"></div>
+              <div class="skeleton h-12 w-full"></div>
+            </div>
+          </div>
+          
+          <div class="text-right mt-2">
+            <span class="text-xs">max count: </span><span class="text-xs" id="notes_max_count">0/0</span>
+            <button class="btn btn-neutral btn-xs" onclick="ReportNotes.showAddModal();" id="notes_add_btn">add note</button>
+          </div>
+        </div>
+      </div>
+
+
+      <div class="mt-2" id="checklist">
+        <div class="w-full bg-base-100 rounded-box p-4">
+          <span class="skeleton skeleton-text">Loading checklist...</span>
+        </div>
+      </div>
+
+      <div class="fixed bottom-0 left-0 right-0 py-2 text-center bg-info glass hidden" id="stage_complete">
+        <button class="btn btn-soft btn-default btn-wide" onclick="ChecklistProcessor.completeChecklist(this);">
+          Complete checklist
+        </button>
+      </div>
+
+      <div class="fixed bottom-0 left-0 right-0 py-2 text-center bg-success glass hidden" id="batch_pass_submit">
+        <button class="btn btn-soft btn-default btn-wide" onclick="ChecklistProcessor.batchPassSubmit(this);">
+          Submit selected items
+        </button>
+      </div>
+
+      <dialog id="fail_checklist_modal" class="modal">
+        <div class="modal-box">
+          <form method="dialog">
+            <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+          </form>
+
+          <h3 class="text-lg font-bold">Why this test failed?</h3>
+          <form id="fail_checklist_form">
+            <div>
+              <div data-alert="error"></div>
+              <fieldset class="fieldset">
+                <input type="hidden" name="checklistItemNumber" value="">
+                <input type="hidden" name="checklistRowIndex" value="">
+                
+                <legend class="fieldset-legend">Provide date to fix (*required):</legend>
+                <input type="date" class="input" name="toFixDate" required>
+
+                <legend class="fieldset-legend">Provide cause of failure:</legend>
+                <textarea class="textarea h-24 w-full" placeholder="Notes" name="notes"></textarea>
+                <div class="label">Optional</div>
+
+              </fieldset>
+            </div>
+
+            <div class="modal-action justify-center">
+              <button type="submit" class="btn btn-wide btn-error">Fail</button>
+            </div>
+          </form>
+        </div>
+      </dialog>
+
+
+      <dialog id="checklist_notes_modal" class="modal">
+        <div class="modal-box">
+          <form method="dialog">
+            <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+          </form>
+
+          <!-- <h3 class="text-lg font-bold">Notes:</h3> -->
+          <form id="checklist_notes_form">
+            <div>
+              <div data-alert="error"></div>
+
+              <fieldset class="fieldset">
+                <input class="hidden" type="text" name="checklistItemNumber" value="">
+                <input class="hidden" type="text" name="checklistRowIndex" value="">
+
+                <legend class="fieldset-legend">Leave your notes here:</legend>
+                <textarea class="textarea h-24 w-full" placeholder="Notes" name="notes"></textarea>
+              </fieldset>
+            </div>
+
+            <div class="modal-action">
+              <button type="submit" class="btn btn-block btn-primary">Save</button>
+            </div>
+          </form>
+        </div>
+      </dialog>
+
+
+      <dialog id="stage_notes_modal" class="modal">
+        <div class="modal-box">
+          <form method="dialog">
+            <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+          </form>
+
+          <!-- <h3 class="text-lg font-bold">Notes:</h3> -->
+          <form id="stage_notes_form">
+            <div>
+              <div data-alert="error"></div>
+
+              <fieldset class="fieldset">
+                <input class="hidden" type="text" name="rowIndex" value="">
+
+                <legend class="fieldset-legend">Leave your notes here:</legend>
+                <textarea class="textarea h-24 w-full" placeholder="Notes" name="notes"></textarea>
+              </fieldset>
+            </div>
+
+            <div class="modal-action">
+              <button type="submit" class="btn btn-block btn-primary">Save</button>
+            </div>
+          </form>
+        </div>
+      </dialog>
+
+      <?!= include('templates/inc.main_search', {props: props, user: user, i18n: i18n}) ?>
+    </main>
+
+    <?!= include('templates/inc.body_footer', {props: props, i18n: i18n, user: user}) ?>
+    <?!= include('frontend/toast.js'); ?>
+    <?!= include('frontend/timezone.js', {userProps: user.props}); ?>
+    <?!= include('frontend/cache.js'); ?>
+    <?!= include('frontend/report_status_badge.js'); ?>
+    <?!= include('frontend/search.js'); ?>
+    <?!= include('frontend/report_notes.js', {user: user}); ?>
+    <?!= include('frontend/report.js'); ?>
+    <?!= include('frontend/checklist_processor.js'); ?>
+    <script>
+      // remember the stage id to load correct tab after the page reloading
+      const ACTIVE_STAGE = localStorage.getItem('active_stage_<?!= report.id ?>');
+      ReportLoader.init('<?!= report.id ?>');
+      if (ACTIVE_STAGE) {
+        document.getElementById('stages-menu').querySelector(`[data-stage-id="${ACTIVE_STAGE}"]`).click();
+      } else {
+        document.getElementById('stages-menu').querySelector('a').click();
+      }
+    </script>
+  </body>
+</html>

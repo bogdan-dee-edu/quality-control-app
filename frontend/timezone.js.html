@@ -1,0 +1,111 @@
+<script>
+
+const UserTimeZone = ((userPropsTimeZone, scriptUrl) => {
+  const selectTimeZone = document.getElementById('timezones');
+  const browserTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  let userTimeZone = browserTimeZone;
+  let changeListenerAdded = false;
+
+  if (userPropsTimeZone !== undefined && userPropsTimeZone !== '') {
+    userTimeZone = userPropsTimeZone;
+  }
+
+  function replaceToKyiv(string) {
+    if (string === 'Europe/Kiev') 
+      return 'Europe/Kyiv';
+    else
+      return string;
+  }
+
+  function getTimeZoneName() {
+    return replaceToKyiv(userTimeZone);
+  }
+
+  function getDefaultLocale() {
+    return "en-GB";
+  }
+
+  function displayTimeZoneName() {
+    selectTimeZone.innerHTML = `<option>${getTimeZoneName()}</option>`;
+    selectTimeZone.addEventListener('click', editTimeZone, { once: true });
+  }
+
+  function editTimeZone() {
+    const timeZones = Intl.supportedValuesOf('timeZone');
+    const userTimeZone = getTimeZoneName();
+    
+    let htmlOptions = `<option value="${userTimeZone}" selected>${userTimeZone}</option>`;
+    for(let tz of timeZones) {
+      tz = replaceToKyiv(tz);
+      htmlOptions += `<option value="${tz}">${tz}</option>`;
+    }
+    
+    selectTimeZone.innerHTML = htmlOptions;
+    if (! changeListenerAdded) {
+      selectTimeZone.addEventListener('change', changeTimeZone);    
+      changeListenerAdded = true;
+    }
+  }
+
+  function changeTimeZone(event) {
+    const selectedValue = event.target.value;
+    let error = null;
+
+    const callBackend = new Promise((resolve, reject) => {
+      google.script.run
+        .withSuccessHandler((res) => {
+          resolve(res);
+        })
+        .withFailureHandler(reject)
+        .runAPI('Index', 'changeTimeZone', {timeZone: selectedValue});
+    });
+
+    Toast.show('Reloading page to apply changes <span class="loading loading-dots loading-xs"></span>');
+    callBackend
+    .then((data) => {
+      if (data && data.success) {
+        window.open(scriptUrl,'_top');
+      } else {
+        if (data && data.error) {
+          error = data.error;
+        } else {
+          error = 'Unknown error from API';
+        }
+      }
+    })
+    .catch((err) => {
+      console.error(err);
+      error = err.toString();
+    })
+    .finally(() => {
+      if (error !== null) Toast.showError(error);
+    });
+  }
+
+  function updateTimeWithTimeZoneOnPage() {
+    setInterval(() => {
+      document.querySelectorAll('[data-timezone]').forEach(elem => {
+        const datetimeISO = elem.innerText;
+        if (datetimeISO && datetimeISO.indexOf('T') !== -1) {
+          const date = new Date(datetimeISO);
+          let displayDatetime = date.toLocaleString(getDefaultLocale(), {timeZone: getTimeZoneName()});
+
+          elem.innerHTML = displayDatetime;
+          elem.removeAttribute('data-timezone');
+        }
+      });
+    }, 1000);
+  }
+
+  return {
+    'displayTimeZoneName': displayTimeZoneName,
+    'getTimeZoneName': getTimeZoneName,
+    'editTimeZone': editTimeZone,
+    'getDefaultLocale': getDefaultLocale,
+    'updateTimeWithTimeZoneOnPage': updateTimeWithTimeZoneOnPage
+  }
+})("<?= userProps.timezone ?>", "<?= getUrl() ?>");
+
+UserTimeZone.displayTimeZoneName();
+UserTimeZone.updateTimeWithTimeZoneOnPage();
+</script>

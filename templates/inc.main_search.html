@@ -1,0 +1,35 @@
+<dialog id="search_modal" class="modal modal-top">
+  <div class="modal-box">
+    <form method="dialog">
+      <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+    </form>
+
+    <div class="text-lg text-center mt-2">
+      <form id="search_form">
+        <div class="join">
+          <div>
+            <label class="input join-item">
+              <svg class="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <g
+                  stroke-linejoin="round"
+                  stroke-linecap="round"
+                  stroke-width="2.5"
+                  fill="none"
+                  stroke="currentColor"
+                >
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <path d="m21 21-4.3-4.3"></path>
+                </g>
+              </svg>
+              <input type="search" minlength="3" required placeholder="Search" />
+            </label>
+          </div>
+
+          <button class="btn join-item" type="submit">Search</button>
+        </div>
+      </form>
+    </div>
+
+    <div id="search_result" class="p-2 mt-2"></div>
+  </div>
+</dialog>

@@ -1,0 +1,128 @@
+<script>
+
+const FilesSearcher = ((scriptUrl, Toast) => {
+  const modal = document.getElementById('search_modal');
+  const form = document.getElementById('search_form');
+  const searchResultContainer = document.getElementById('search_result');
+  if (form) {
+    form.addEventListener('submit', search);
+  }
+
+  function showModal() {
+    if (modal) {
+      modal.showModal();
+      form.querySelector('input').focus();
+    }
+  }
+
+
+  function callBackend(params) {
+    return new Promise((resolve, reject) => {
+      google.script.run
+        .withSuccessHandler((res) => {
+          resolve(res);
+        })
+        .withFailureHandler(reject)
+        .runAPI('Report', 'search', params);
+    });
+  }
+
+  function renderStatusBadge(status) {
+    let color = 'neutral';
+    switch (status.toLowerCase()) {
+      case 'new':
+        color = 'warning';
+        break;
+      case 'failed':
+        color = 'error';
+        break;
+      case 'in_progress':
+        color = 'info';
+        break;
+      case 'completed':
+        color = 'success';
+        break;
+    }
+    return `<div class="badge badge-${color} badge-xs">${status}</div>`;
+  }
+
+  function render(data) {
+    let result = false;
+
+    if (data.length > 0) {
+      let content = '';
+      for (item of data) {
+        let createdAt = new Date(item.date_created);
+        let displayCreatedAt = createdAt.toLocaleString(UserTimeZone.getDefaultLocale(), {timeZone: UserTimeZone.getTimeZoneName()});
+        
+        content += `
+        <div class="rounded-field bg-base-300 p-2 mb-2 text-base-content/70 shadow-sm">
+          <span class="text-sm mr-2">${displayCreatedAt.split(',').at(0)}</span>
+
+          <a href="${scriptUrl}?action=report&id=${item.id}" class="link link-hover font-semibold">${item.name}</a>
+          
+          <span class="float-end">${renderStatusBadge(item.status)}</span>
+        </div>
+        `;
+      }
+      result = true;
+      searchResultContainer.innerHTML = content;
+    }
+
+    return result;
+  }
+
+  function renderAlert() {
+    const alertHtml = `
+      <div role="alert" class="alert alert-default w-full">
+        No files found :(
+      </div>
+    `;
+
+    searchResultContainer.innerHTML = alertHtml;
+  }
+  
+  function search(event) {
+    event.preventDefault();
+    
+    const searchString = event.target.querySelector('input').value;
+    const btn = event.target.querySelector('button');
+    btn.disabled = true;
+    btn.innerHTML = 'Searching <span class="loading loading-dots loading-xs"></span>';
+    searchResultContainer.innerHTML = '';
+
+    let dataRendered = false;
+    let error = null;
+
+    callBackend({'searchString': searchString})
+    .then((data) => {
+      if (data && data.success) {
+        dataRendered = render(data.data);
+      } else {
+        if (data && data.error) {
+          error = data.error;
+        } else {
+          error = 'Unknown error from API';
+        }
+      }
+    })
+    .catch((err) => {
+      console.error(err);
+      error = err.toString();
+    })
+    .finally(() => {
+      if (error !== null) Toast.showError(error);
+      if (! dataRendered) renderAlert();
+      
+      btn.disabled = false;
+      btn.innerHTML = 'Search';
+    });
+  }
+
+  return {
+    'showModal': showModal
+  }
+
+})('<?!= getUrl(); ?>', Toast);
+
+</script>

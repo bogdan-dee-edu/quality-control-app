@@ -1,0 +1,310 @@
+<script>
+
+const ChecklistProcessor = ((scriptUrl, Toast, ReportLoader) => {
+
+  const failModal = document.getElementById('fail_checklist_modal');
+  const failForm = document.getElementById('fail_checklist_form');
+  const notesModal = document.getElementById('checklist_notes_modal');
+  const notesForm = document.getElementById('checklist_notes_form');
+  const stageCompleteContainer = document.getElementById('stage_complete');
+  const batchPassSubmitContainer = document.getElementById('batch_pass_submit');
+  
+  let batchPassKeys = {};
+  let reportId = null;
+  let stageId = null;
+  let formSubmitListenersLoaded = false;
+
+  function init(report, stage) {
+    reportId = report;
+    stageId = stage;
+
+    if (! formSubmitListenersLoaded) {
+      failForm.addEventListener('submit', failFormSubmitListener);
+      notesForm.addEventListener('submit', notesFormSubmitListener);
+      formSubmitListenersLoaded = true;
+    }
+  }
+
+  function blockButton(eventTarget) {
+    if (eventTarget && eventTarget.innerHTML !== '') {
+      eventTarget.setAttribute('data-value', eventTarget.innerHTML);
+      eventTarget.innerHTML = '<span class="loading loading-dots loading-xs"></span>';
+      eventTarget.disabled = true;
+    }
+  }
+  
+  function unblockButton(eventTarget) {
+    if (eventTarget && eventTarget.innerHTML !== '') {
+      eventTarget.innerHTML = eventTarget.getAttribute('data-value');
+      eventTarget.disabled = false;
+    }
+  }
+
+  function callBackend(action, params) {
+    return new Promise((resolve, reject) => {
+      google.script.run
+        .withSuccessHandler((res) => {
+          resolve(res);
+        })
+        .withFailureHandler(reject)
+        .runAPI('Report', action, params);
+    });
+  }
+
+  function renderChecklistItem(data) {
+    document.querySelector(`[data-checklist-item="${data.obj.number}"]`).innerHTML = data.html;
+  }
+
+  function renderStageStatusBadge(data) {
+    document.getElementById('stage_status_badge').innerHTML = data.stage.status_html;
+
+    if (stageCompleteContainer) {
+      if (data.stage.status.toLowerCase() === 'passed') {
+        stageCompleteContainer.classList.remove('hidden');
+      } else {
+        stageCompleteContainer.classList.add('hidden');
+      }
+    }
+
+  }
+
+  function renderReportStatusBadge(data) {
+    document.getElementById('report_status_badge').innerHTML = data.report.status_html;
+  }
+
+  function action(name, params, btn, successCallback, afterActionCallback) {
+    
+    let error = null;
+    if (btn) blockButton(btn);
+
+    callBackend(name, params)
+    .then((data) => {
+      if (data && data.success) {
+        successCallback(data);
+      } else {
+        if (data && data.error) {
+          error = data.error;
+        } else {
+          error = 'Unknown error from API';
+        }
+      }
+    })
+    .catch((err) => {
+      console.error(err);
+      error = err.toString();
+    })
+    .finally(() => {
+      if (error !== null) Toast.showError(error);
+      if (btn) unblockButton(btn);
+      afterActionCallback();
+    });
+    
+  }
+
+  function batchPass(checklistItemNumber, checklistRowIndex, btn) {
+
+    if (batchPassKeys[checklistRowIndex] === undefined) {
+        batchPassKeys[checklistRowIndex] = checklistItemNumber;
+        
+        btn.classList.remove('btn-success');
+        btn.classList.add('btn-primary');
+        btn.innerText = 'Passed';
+    } else {
+        delete batchPassKeys[checklistRowIndex];
+
+        btn.classList.remove('btn-primary');
+        btn.classList.add('btn-success');
+        btn.innerText = 'Pass';
+    }
+
+    const batchLenght = Object.keys(batchPassKeys).length;
+    if (batchLenght > 0) {
+        batchPassSubmitContainer.classList.remove('hidden');
+    } else {
+        batchPassSubmitContainer.classList.add('hidden');
+    }
+    
+  }
+
+  function batchPassSubmit(btn) {
+      const params = {
+      'reportId': reportId,
+      'stageId': stageId,
+      'checklistRows': Object.keys(batchPassKeys)
+    };
+    const successCallback = (data) => {
+      batchPassKeys = {};
+      batchPassSubmitContainer.classList.add('hidden');
+      renderReportStatusBadge(data);
+
+      // reload stage
+      ReportLoader.loadStage(stageId);
+    };
+    const afterActionCallback = () => {};
+    action('batchPass', params, btn, successCallback, afterActionCallback);
+  }
+
+  function pass(checklistItemNumber, checklistRowIndex, btn) {
+    const params = {
+      'reportId': reportId,
+      'stageId': stageId,
+      'checklistItemNumber': checklistItemNumber,
+      'checklistRowIndex': checklistRowIndex
+    };
+    const successCallback = (data) => {
+      renderChecklistItem(data);
+      renderStageStatusBadge(data);
+      renderReportStatusBadge(data);
+    };
+    action('pass', params, btn, successCallback, () => {});
+  }
+
+  function fail(formData) {
+    const params = {
+      'reportId': reportId, 
+      'stageId': stageId
+    };
+    const btn = failForm.querySelector('button[type="submit"]');
+    const successCallback = (data) => {
+      renderChecklistItem(data);
+      renderStageStatusBadge(data);
+      renderReportStatusBadge(data);
+    };
+    const afterActionCallback = () => {
+      failModal.close();
+      failForm.reset();
+    };
+    action('fail', { ...formData, ...params }, btn, successCallback, afterActionCallback);
+  }
+
+  function failModalShow(checklistItemNumber, checklistRowIndex, eventTarget) {
+    if (batchPassKeys[checklistRowIndex] !== undefined) { // remove item from batch pass processing if selected
+      const passBtn = document.querySelector(`button[data-btn-pass="${checklistRowIndex}"]`);
+      batchPass(checklistItemNumber, checklistRowIndex, passBtn);
+    }
+
+    failModal.showModal();
+    failModal.querySelector('input[name="checklistItemNumber"]').value = checklistItemNumber;
+    failModal.querySelector('input[name="checklistRowIndex"]').value = checklistRowIndex;
+
+    const item = document.querySelector(`[data-checklist-item="${checklistItemNumber}"]`);
+    if (item) {
+      const notes = item.querySelector('.chat-bubble');
+      if (notes) failModal.querySelector('textarea').value = notes.innerText;
+    }
+  }
+
+  function failFormSubmitListener(event) {
+    event.preventDefault();
+    form = event.target;
+
+    const formData = new FormData(this);
+    const formObject = Object.fromEntries(formData.entries());
+
+    fail(formObject);
+  }
+
+  function revertPassed(checklistItemNumber, checklistRowIndex, btn) {
+    const params = {
+      'reportId': reportId,
+      'stageId': stageId,
+      'checklistItemNumber': checklistItemNumber,
+      'checklistRowIndex': checklistRowIndex
+    };
+    const successCallback = (data) => {
+      renderChecklistItem(data);
+      renderStageStatusBadge(data);
+    };
+    action('revertPassed', params, btn, successCallback, () => {});
+  }
+
+  function fixFailed(checklistItemNumber, checklistRowIndex, btn) {
+    const params = {
+      'reportId': reportId,
+      'stageId': stageId,
+      'checklistItemNumber': checklistItemNumber,
+      'checklistRowIndex': checklistRowIndex
+    };
+    const successCallback = (data) => {
+      renderChecklistItem(data);
+      renderStageStatusBadge(data);
+      renderReportStatusBadge(data);
+    };
+    action('fixFailed', params, btn, successCallback, () => {});
+  }
+
+  function completeChecklist(btn) {
+      const params = {
+      'reportId': reportId, 
+      'stageId': stageId
+    };
+    const successCallback = (data) => {
+      renderStageStatusBadge(data);
+      renderReportStatusBadge(data);
+      
+      Toast.showSuccess('This stage has been successfully completed!');
+      document.querySelector('[data-submitted-by]').innerText = data.stage.meta_submitted_by;
+      document.querySelector('[data-submitted-at]').innerText = data.stage.meta_submitted_at;
+
+      const allBtns = document.querySelectorAll('.card-body button');
+      allBtns.forEach(button => {
+        button.remove();
+      });
+    };
+    const afterActionCallback = () => {};
+    action('completeChecklist', params, btn, successCallback, afterActionCallback);
+  }
+
+  function notesModalShow(checklistItemNumber, checklistRowIndex, eventTarget) {
+    notesForm.reset();
+    notesModal.showModal();
+    notesModal.querySelector('input[name="checklistItemNumber"]').value = checklistItemNumber;
+    notesModal.querySelector('input[name="checklistRowIndex"]').value = checklistRowIndex;
+
+    const item = document.querySelector(`[data-checklist-item="${checklistItemNumber}"]`);
+    if (item) {
+      const notes = item.querySelector('.chat-bubble');
+      if (notes) notesModal.querySelector('textarea').value = notes.innerText + "\n";
+    }
+  }
+
+  function notesFormSubmitListener(event) {
+    event.preventDefault();
+    form = event.target;
+
+    const formData = new FormData(this);
+    const formObject = Object.fromEntries(formData.entries());
+
+    saveNotes(formObject);
+  }
+
+  function saveNotes(formData) {
+    const params = {
+      'reportId': reportId, 
+      'stageId': stageId
+    };
+    const btn = notesForm.querySelector('button[type="submit"]');
+    const successCallback = (data) => {
+      renderChecklistItem(data);
+    };
+    const afterActionCallback = () => {
+      notesModal.close();
+      notesForm.reset();
+    };
+    action('saveNotes', { ...formData, ...params }, btn, successCallback, afterActionCallback);
+  }
+
+  return {
+    'init': init,
+    'batchPass': batchPass,
+    'batchPassSubmit': batchPassSubmit,
+    'pass': pass,
+    'failModalShow': failModalShow,
+    'revertPassed': revertPassed,
+    'fixFailed': fixFailed,
+    'completeChecklist': completeChecklist,
+    'notesModalShow': notesModalShow
+  }
+})('<?!= getUrl(); ?>', Toast, ReportLoader);
+
+</script>
