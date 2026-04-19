@@ -172,12 +172,12 @@ function EXEC_warmUpCache() {
   const appContainer = new AppContainer(PROPS_SCHEMA, TESTING_FLAG);
   const { props, logger, i18n, user, cache } = { ...appContainer.run() }; // run the app and warm up the cache for general things (e.g. i18n, users, etc.)
 
-  const responseAPI = runAPI('Report', 'list', {excludeStatus: 'completed'}); // get the list of file on the home page
+  const responseAPI = runAPI('Report', 'list', {excludeStatus: 'completed'}); // get the list of files on the home page
   if (responseAPI.success) {
     for (file of responseAPI.data) { // iterate through all files
       reportAction({parameter: {id: file.id}}); // call the report page and it will cache everything it needs
     }
   }
 
-  const actionResnpose = reportsAction(); // also cache the list of folders
+  const actionResponse = reportsAction(); // also cache the list of folders
 }

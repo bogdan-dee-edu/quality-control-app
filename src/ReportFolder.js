@@ -139,7 +139,7 @@ class ReportFolder {
   static toFilesArray(objetcs) {
     const arr = [];
     for(let obj of objetcs) {
-      let statusAndName = Report.retriveStatusAndName(obj.getName());
+      let statusAndName = Report.retrieveStatusAndName(obj.getName());
       arr.push({
         'id': obj.getId(),
         'name': statusAndName['name'],

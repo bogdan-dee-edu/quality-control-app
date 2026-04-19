@@ -44,7 +44,7 @@ class Report {
     return '|';
   }
 
-  static retriveStatusAndName(fileName) {
+  static retrieveStatusAndName(fileName) {
     let splitFileName = fileName.split(Report.reportStatusDivider());
 
     return {
@@ -340,7 +340,7 @@ class Report {
       const spreadsheet = this.openSpreadsheet(fileId);
       this._validateSpreadsheetIsReady();
       const stagesList = this._getStagesList(this.spreadsheet);
-      const statusAndName = Report.retriveStatusAndName(spreadsheet.getName());
+      const statusAndName = Report.retrieveStatusAndName(spreadsheet.getName());
 
       const fileInfo = {
         'id': spreadsheet.getId(),
@@ -442,7 +442,7 @@ class Report {
   getReportStatus() {
     this._validateSpreadsheetIsReady();
 
-    const statusAndName = Report.retriveStatusAndName(this.spreadsheet.getName());
+    const statusAndName = Report.retrieveStatusAndName(this.spreadsheet.getName());
 
     return statusAndName['status'];
   }
@@ -470,7 +470,7 @@ class Report {
     }
 
     // after the checks above, if new status of the report is still IN_PROGRESS then we change it:
-    const statusAndName = Report.retriveStatusAndName(this.spreadsheet.getName());
+    const statusAndName = Report.retrieveStatusAndName(this.spreadsheet.getName());
     if (newReportStatus === reportStatusList.in_progress && currentStatus !== newReportStatus) {
       const newName = this._buildReportFileNameWithStatus(statusAndName['name'], newReportStatus);
       this.spreadsheet.rename(newName);
@@ -481,7 +481,7 @@ class Report {
 
   changeReportStatusToFailed() {
     const reportStatusList = Report.reportStatusList();
-    const statusAndName = Report.retriveStatusAndName(this.spreadsheet.getName());
+    const statusAndName = Report.retrieveStatusAndName(this.spreadsheet.getName());
 
     if (statusAndName['status'] !== reportStatusList.failed) {
       const newName = this._buildReportFileNameWithStatus(statusAndName['name'], reportStatusList.failed);
@@ -493,7 +493,7 @@ class Report {
 
   changeReportStatusToCompleted() {
     const reportStatusList = Report.reportStatusList();
-    const statusAndName = Report.retriveStatusAndName(this.spreadsheet.getName());
+    const statusAndName = Report.retrieveStatusAndName(this.spreadsheet.getName());
 
     // check if current status is not already compelted
     if (statusAndName['status'] !== reportStatusList.completed) {
@@ -508,7 +508,7 @@ class Report {
       }
     }
 
-    const updatedStatusAndName = Report.retriveStatusAndName(this.spreadsheet.getName());
+    const updatedStatusAndName = Report.retrieveStatusAndName(this.spreadsheet.getName());
 
     return updatedStatusAndName['status'];
   }

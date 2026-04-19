@@ -9,7 +9,7 @@ class I18n {
     this._supportedLangs = [];
     this._setupLang(langCode.toLowerCase())
 
-    this._dict = this._loadDictionaty();
+    this._dict = this._loadDictionary();
     this._translations = this._selectTranslationsByLang();
   }
 
@@ -50,7 +50,7 @@ class I18n {
     this.lang = langCode;
   }
 
-  _loadDictionaty() {
+  _loadDictionary() {
     let dict = this.cache ? this.cache.getI18nDict() : null;
     if (dict === null) {
       if (! this.storage.sheet) this.storage.openSheet();
