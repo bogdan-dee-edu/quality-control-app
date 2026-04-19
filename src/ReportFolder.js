@@ -176,7 +176,7 @@ function TEST_listFilesInFolder() {
   const props = settings.scriptProps;
 
   const appLoggerStorage = new Storage(props['logsSpreadsheetId'], 'logs');
-  const appLogger = new AppLogger(props['appId'], appLoggerStorage);
+  const appLogger = new AppLogger({ appId: props['appId'], logLevel: props['logLevel'] }, appLoggerStorage);
 
   const reportFolder = new ReportFolder(props['reportsRootFolderId'], appLogger);
   const files = reportFolder.listFilesInFolder(reportFolder.folders[0].getId());
@@ -191,7 +191,7 @@ function TEST_listAllFiles() {
   const props = settings.scriptProps;
 
   const appLoggerStorage = new Storage(props['logsSpreadsheetId'], 'logs');
-  const appLogger = new AppLogger(props['appId'], appLoggerStorage);
+  const appLogger = new AppLogger({ appId: props['appId'], logLevel: props['logLevel'] }, appLoggerStorage);
 
   const reportFolder = new ReportFolder(props['reportsRootFolderId'], appLogger);
   const files = reportFolder.listAllFiles();

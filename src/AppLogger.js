@@ -1,8 +1,11 @@
+const LOG_LEVELS = { info: 0, warn: 1, error: 2, none: 3 };
+
 class AppLogger {
-  constructor(appId, storageInstance) {
+  constructor({ appId, logLevel = 'info' }, storageInstance) {
     this._maxLogsRows = 999;
     this._storage = storageInstance;
     this._appId = appId;
+    this._minLevel = (logLevel in LOG_LEVELS) ? logLevel : 'info';
   }
 
   get storage() {
@@ -26,9 +29,11 @@ class AppLogger {
       message: message
     }
 
+    if (LOG_LEVELS[level] < LOG_LEVELS[this._minLevel]) return;
+
     if (this.storage) {
       if (! this.storage.sheet) this.storage.openSheet();
-      
+
       this.storage.insert(obj);
       this.rotate();
     }
@@ -63,6 +68,6 @@ function loggerTest() {
   const props = settings.scriptProps;
 
   const storage = new Storage(props['logsSpreadsheetId'], 'logs');
-  const logger = new AppLogger(props['appId'], storage);
+  const logger = new AppLogger({ appId: props['appId'], logLevel: props['logLevel'] }, storage);
   logger.info("logging some testing message from the test func");
 }

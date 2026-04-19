@@ -18,6 +18,7 @@ let PROPS_SCHEMA = {
     'i18nSheetName': null,
     'reportTemplateId': null,
     'reportsRootFolderId': null,
+    'logLevel': null,  // controls spreadsheet write verbosity: 'info' | 'warn' | 'error'
   },
   'optional': {
     'TEST_logsSpreadsheetId': null,

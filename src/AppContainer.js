@@ -44,7 +44,7 @@ class AppContainer {
 
   loadAppLogger() {
     const storage = new Storage(this.props['logsSpreadsheetId'], 'logs');
-    return new AppLogger(this.props['appId'], storage);
+    return new AppLogger({ appId: this.props['appId'], logLevel: this.props['logLevel'] }, storage);
   }
 
   run() {

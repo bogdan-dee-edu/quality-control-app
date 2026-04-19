@@ -97,7 +97,7 @@ function test_trans() {
   const props = settings.scriptProps;
 
   const appLoggerStorage = new Storage(props['logsSpreadsheetId'], 'logs');
-  const appLogger = new AppLogger(props['appId'], appLoggerStorage);
+  const appLogger = new AppLogger({ appId: props['appId'], logLevel: props['logLevel'] }, appLoggerStorage);
 
   const storage = new Storage(props['storageSpreadsheetId'], props['i18nSheetName']);
   const i18nObj = new I18n('ua', storage, appLogger);

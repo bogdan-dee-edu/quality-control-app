@@ -104,7 +104,7 @@ function TEST_addNote() {
   const props = settings.scriptProps;
 
   const appLoggerStorage = new Storage(props['logsSpreadsheetId'], 'logs');
-  const appLogger = new AppLogger(props['appId'], appLoggerStorage);
+  const appLogger = new AppLogger({ appId: props['appId'], logLevel: props['logLevel'] }, appLoggerStorage);
 
   let reportId = '1uo7IvLJtYA_WnnkDFuYbMokfD3_E0Z2xMEGcDFzrn0k';
   let stageId = '950457542';
