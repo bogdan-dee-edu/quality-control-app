@@ -1,11 +1,11 @@
-class ReportPage {
+class ReportPage extends BasePageAbstract {
 
-  reportsAction(e) {
+  static reportsAction(e) {
     const appContainer = new AppContainer(PROPS_SCHEMA, TESTING_FLAG);
     const { props, logger, i18n, user, cache } = { ...appContainer.run() };
 
     if (!user) {
-      return renderAccessDenied();
+      return this.renderAccessDenied();
     }
 
     const templateFile = 'templates/reports';
@@ -33,7 +33,7 @@ class ReportPage {
     return html;
   }
 
-  reportAction(e) {
+  static reportAction(e) {
     const appContainer = new AppContainer(PROPS_SCHEMA, TESTING_FLAG);
     const { props, i18n, user, cache } = { ...appContainer.run() };
 
@@ -45,7 +45,7 @@ class ReportPage {
       throw new Error(`File not found`);
     }
     if (!user) {
-      return renderAccessDenied();
+      return this.renderAccessDenied();
     }
 
     const templateFile = 'templates/report';
@@ -71,7 +71,7 @@ class ReportPage {
     return html;
   }
 
-  reportActionLogsAction(e) {
+  static reportActionLogsAction(e) {
     const appContainer = new AppContainer(PROPS_SCHEMA, TESTING_FLAG);
     const { props, i18n, user, cache } = { ...appContainer.run() };
 
@@ -83,7 +83,7 @@ class ReportPage {
       throw new Error(`File not found`);
     }
     if (!user) {
-      return renderAccessDenied();
+      return this.renderAccessDenied();
     }
 
     const templateFile = 'templates/report_action_logs';

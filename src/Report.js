@@ -584,13 +584,13 @@ function TEST_reportFillUpNewFile() {
 }
 
 function EXEC_renameNamedRangesInTemplate() {
-  return;
+  // return;
   
-  TESTING_FLAG = true;
+  // TESTING_FLAG = true;
   const appContainer = new AppContainer(PROPS_SCHEMA, TESTING_FLAG);
   const { props, logger, i18n, user } = { ...appContainer.run() };
 
-  // const templateId = '1DsLoPdR7Z1cBLphLYzb0GAoZjY2NuIDMOr30TxL08Rg';
+  const templateId = '14Gk2RGYfbTI-PMxel9I5CQeO50DkQLQHsHaKOCrPhvE';
   const report = new Report(logger);
 
   report.openSpreadsheet(templateId);
@@ -603,12 +603,8 @@ function EXEC_renameNamedRangesInTemplate() {
       let rangeName = range.getName();
       rangeName = rangeName.split('.').at(0);
       
-      let newName = `${rangeName.split('!').at(-1)}.${(sheet.getIndex()+1)}`;
-      console.log(sheet.getIndex()+1, sheet.getName(), rangeName, newName);
-      
-      if (newName.includes('meta_device_ip')) {
-        newName = newName.replace('meta_device_ip', 'meta_device_version');
-      }
+      let newName = `${rangeName.split('!').at(-1)}.${(sheet.getIndex())}`;
+      console.log(sheet.getIndex(), sheet.getName(), rangeName, newName);
 
       range.setName(newName);
     });
