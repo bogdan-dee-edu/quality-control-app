@@ -584,13 +584,13 @@ function TEST_reportFillUpNewFile() {
 }
 
 function EXEC_renameNamedRangesInTemplate() {
-  // return;
+  return;
   
-  // TESTING_FLAG = true;
+  TESTING_FLAG = true;
   const appContainer = new AppContainer(PROPS_SCHEMA, TESTING_FLAG);
   const { props, logger, i18n, user } = { ...appContainer.run() };
 
-  const templateId = '14Gk2RGYfbTI-PMxel9I5CQeO50DkQLQHsHaKOCrPhvE';
+  // const templateId = '14Gk2RGYfbTI-PMxel9I5CQeO50DkQLQHsHaKOCrPhvE';
   const report = new Report(logger);
 
   report.openSpreadsheet(templateId);
