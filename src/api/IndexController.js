@@ -1,4 +1,4 @@
-class IndexController extends BaseController {
+class IndexController extends BaseControllerAbstract {
 
   changeTimeZoneAction(params) {
     let { timeZone } = { ...params };
