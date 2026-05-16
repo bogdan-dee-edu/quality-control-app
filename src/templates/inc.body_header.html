@@ -7,7 +7,7 @@
 
     <div class="navbar-center">
       <ul class="menu menu-horizontal px-1">
-        <li><a href="<?= getUrl(); ?>?action=reports">All Reports</a></li>
+        <li><a href="<?= getUrl(); ?>?action=reports"><?= i18n.trans('nav.all_reports') ?></a></li>
       </ul>
     </div>
 
@@ -17,7 +17,7 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
             d="M21 21l-4.35-4.35m1.15-5.3a7 7 0 11-14 0 7 7 0 0114 0z" />
         </svg>
-        <input type="text" class="grow" placeholder="Search…" onclick="FilesSearcher.showModal();">
+        <input type="text" class="grow" placeholder="<?= i18n.trans('search.placeholder') ?>" onclick="FilesSearcher.showModal();">
       </label>
 
     </div>
@@ -32,18 +32,18 @@
     <div class="w-1/2 py-4 px-2 text-right">
       
       <div class="join">
-        <span class="join-item text-xs p-1">Timezone:</span>
+        <span class="join-item text-xs p-1"><?= i18n.trans('nav.timezone') ?></span>
         <select class="select select-xs w-24 md:w-32 join-item" id="timezones">
-          <option>loading timezone...</option>
+          <option><?= i18n.trans('nav.timezone_loading') ?></option>
         </select>
       </div>
       <div class="clear-both"></div>
       <div class="join">
-        <span class="join-item text-xs p-1">Language:</span>
-        <select class="select select-xs w-24 md:w-32 join-item">
+        <span class="join-item text-xs p-1"><?= i18n.trans('nav.language') ?></span>
+        <select class="select select-xs w-24 md:w-32 join-item" id="languages">
           <? if (i18n) { ?>
             <? for(let lang of i18n.supportedLangs){ ?>
-              <option value="<?= lang ?>"><?= lang ?></option>
+              <option value="<?!= lang ?>"<?!= (lang == i18n.lang ? ' selected' : '') ?>><?!= lang ?></option>
             <? } ?>
           <? } ?>
         </select>
