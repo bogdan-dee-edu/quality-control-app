@@ -47,7 +47,7 @@ const FilesListLoader = ((scriptUrl, Toast, ReportCreator, ReportStatusBadge) =>
           <div class="list-col-grow">
             <div class="indicator indicator-end w-full">
               <span class="indicator-item mr-4">${ReportStatusBadge.render(item.status)}</span>
-              <a href="${scriptUrl}?action=report&id=${item.id}" class="btn btn-block btn-default opacity-90">${item.name}</a>
+              <a href="${scriptUrl}?action=report&id=${item.id}" class="btn btn-block btn-secondary opacity-90">${item.name}</a>
             </div>
           </div>
 

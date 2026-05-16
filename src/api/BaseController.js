@@ -1,4 +1,4 @@
-class BaseController {
+class BaseControllerAbstract {
   constructor(appContainer) {
     this._props = appContainer.props;
     this._user = appContainer.user;

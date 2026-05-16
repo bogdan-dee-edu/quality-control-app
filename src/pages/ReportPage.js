@@ -10,6 +10,7 @@ class ReportPage extends BasePageAbstract {
 
     const templateFile = 'templates/reports';
     const template = HtmlService.createTemplateFromFile(templateFile);
+    template.daisyTheme = this.daisyTheme;
     template.props = props;
     template.i18n = i18n;
     template.user = user;
@@ -50,6 +51,7 @@ class ReportPage extends BasePageAbstract {
 
     const templateFile = 'templates/report';
     const template = HtmlService.createTemplateFromFile(templateFile);
+    template.daisyTheme = this.daisyTheme;
     template.props = props;
     template.i18n = i18n;
     template.user = user;
@@ -88,6 +90,7 @@ class ReportPage extends BasePageAbstract {
 
     const templateFile = 'templates/report_action_logs';
     const template = HtmlService.createTemplateFromFile(templateFile);
+    template.daisyTheme = this.daisyTheme;
     template.props = props;
     template.i18n = i18n;
     template.user = user;

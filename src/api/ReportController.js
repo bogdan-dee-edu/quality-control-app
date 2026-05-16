@@ -1,4 +1,4 @@
-class ReportController extends BaseController {
+class ReportController extends BaseControllerAbstract {
 
   createAction(params) {
     let { serial, version } = { ...params };

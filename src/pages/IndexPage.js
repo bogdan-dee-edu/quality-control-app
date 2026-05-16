@@ -10,6 +10,7 @@ class IndexPage extends BasePageAbstract {
 
     const templateFile = 'templates/index';
     const template = HtmlService.createTemplateFromFile(templateFile);
+    template.daisyTheme = this.daisyTheme;
     template.props = props;
     template.i18n = i18n;
     template.user = user;
