@@ -1,0 +1,78 @@
+key,en,ua
+
+# nav
+nav.all_reports,All Reports,Всі звіти
+nav.timezone,Timezone:,Часовий пояс:
+nav.timezone_loading,loading timezone...,завантаження...
+nav.language,Language:,Мова:
+
+# footer
+footer.clear_cache,clear cache,очистити кеш
+
+# search
+search.placeholder,Search,Пошук
+search.button,Search,Знайти
+
+# home
+home.recent_reports,Most Recent Reports:,Останні звіти:
+home.create_new,Create new,Створити
+home.loading_reports,Loading latest reports...,Завантаження звітів...
+home.modal_title,Create new quality control report:,Створити новий звіт контролю якості:
+home.serial_legend,Device serial number:,Серійний номер пристрою:
+home.serial_placeholder,Type here,Введіть тут
+home.version_legend,Device version:,Версія пристрою:
+home.version_select,select version,оберіть версію
+home.create_report_btn,Create report,Створити звіт
+
+# reports
+reports.folders,Folders:,Папки:
+reports.loading,Loading reports...,Завантаження звітів...
+
+# report
+report.tab_checklist,Checklist,Чеклист
+report.tab_photos,Photos,Фото
+report.tab_action_logs,Action Logs,Журнал дій
+report.device,Device:,Пристрій:
+report.version,Version:,Версія:
+report.loading,loading...,завантаження...
+report.status,Status:,Статус:
+report.created_by,Created by:,Створив:
+report.created_at,Created at:,Створено:
+report.all_stages,All stages:,Всі етапи:
+report.notes_max_count,max count:,максимум:
+report.add_note,add note,додати нотатку
+report.loading_checklist,Loading checklist...,Завантаження чеклисту...
+report.complete_checklist,Complete checklist,Завершити чеклист
+report.submit_selected,Submit selected items,Підтвердити обрані пункти
+report.fail_modal_title,Why this test failed?,Чому цей тест не пройдено?
+report.fail_date_legend,Provide date to fix (*required):,Вкажіть дату виправлення (*обов'язково):
+report.fail_cause_legend,Provide cause of failure:,Вкажіть причину невдачі:
+report.notes_placeholder,Notes,Нотатки
+report.optional,Optional,Необов'язково
+report.fail_btn,Fail,Провалено
+report.notes_legend,Leave your notes here:,Залиште ваші нотатки тут:
+report.save_btn,Save,Зберегти
+
+# stage
+stage.label,Stage:,Етап:
+stage.status,Status:,Статус:
+stage.submitted_by,Submitted by:,Подав:
+stage.submitted_at,Submitted at:,Подано:
+
+# checklist
+checklist.expected_fix_date,Expected fix date:,Очікувана дата виправлення:
+checklist.fixed_date,Fixed date:,Дата виправлення:
+checklist.pass_btn,Pass,Пройдено
+checklist.fail_btn,Fail,Провалено
+checklist.fix_now_btn,Fix Now,Виправити зараз
+checklist.revert_btn,Revert,Скасувати
+
+# status badges
+status.new,NEW,НОВИЙ
+status.failed,FAILED,ПРОВАЛЕНО
+status.in_progress,IN PROGRESS,В ПРОЦЕСІ
+status.passed,PASSED,ПРОЙДЕНО
+status.completed,COMPLETED,ЗАВЕРШЕНО
+
+# action_logs
+action_logs.load_more,Load more details,Завантажити більше
