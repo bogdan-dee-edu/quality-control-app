@@ -1,6 +1,6 @@
     <footer class="border-t border-primary bg-neutral px-4 sm:px-6 lg:px-8 py-2 text-xs text-neutral-content">
       <span>© <?= new Date().getFullYear() ?> by Bohdan Drobit - [<?= props.appId ?>]</span>
       <? if (user.role === 'admin') { ?>
-        <span> | <button class="link link-warning" onclick="CacheCleaner.clear(this);">clear cache</button></span>
+        <span> | <button class="link link-warning" onclick="CacheCleaner.clear(this);"><?= i18n.trans('footer.clear_cache') ?></button></span>
       <? } ?>
     </footer>

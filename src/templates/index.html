@@ -17,12 +17,12 @@
       <div>
         <ul class="list bg-base-200 mb-2">
           <li class="p-2 tracking-wide">
-            Most Recent Reports: <button class="btn btn-xs btn-primary float-end" onclick="create_report_modal.showModal();">Create new</button>
+            <?= i18n.trans('home.recent_reports') ?> <button class="btn btn-xs btn-primary float-end" onclick="create_report_modal.showModal();"><?= i18n.trans('home.create_new') ?></button>
           </li>
         </ul>
         <ul class="list bg-base-100 rounded-box shadow-md" id="report_files_list">
           <li class="list-row flex justify-center items-center">
-            <span class="skeleton skeleton-text">Loading latest reports...</span>
+            <span class="skeleton skeleton-text"><?= i18n.trans('home.loading_reports') ?></span>
           </li>
         </ul>
       </div>
@@ -49,17 +49,17 @@
             <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
           </form>
 
-          <h3 class="text-lg font-bold">Create new quality control report:</h3>
+          <h3 class="text-lg font-bold"><?= i18n.trans('home.modal_title') ?></h3>
           <form id="create_report_form">
             <div>
               <div data-alert="error"></div>
               <fieldset class="fieldset">
-                <legend class="fieldset-legend">Device serial number:</legend>
-                <input type="text" name="serial" class="input w-full" placeholder="Type here" required/>
+                <legend class="fieldset-legend"><?= i18n.trans('home.serial_legend') ?></legend>
+                <input type="text" name="serial" class="input w-full" placeholder="<?= i18n.trans('home.serial_placeholder') ?>" required/>
 
-                <legend class="fieldset-legend">Device version:</legend>
+                <legend class="fieldset-legend"><?= i18n.trans('home.version_legend') ?></legend>
                 <select class="select w-full" name="version" required>
-                  <option value="" disabled selected>select version</option>
+                  <option value="" disabled selected><?= i18n.trans('home.version_select') ?></option>
                   <? for (let ver of props.productVersions.split(',')) { ?>
                     <option value="<?= ver ?>"><?= ver ?></option>
                   <? } ?>
@@ -68,7 +68,7 @@
             </div>
 
             <div class="modal-action justify-center">
-              <button type="submit" class="btn btn-wide btn-primary">Create report</button>
+              <button type="submit" class="btn btn-wide btn-primary"><?= i18n.trans('home.create_report_btn') ?></button>
             </div>
           </form>
         </div>
@@ -79,11 +79,13 @@
 
     <?!= include('templates/inc.body_footer', {props: props, i18n: i18n, user: user}) ?>
     <?!= include('frontend/toast.js'); ?>
-    <?!= include('frontend/timezone.js', {userProps: user.props}); ?>
-    <?!= include('frontend/cache.js'); ?>
-    <?!= include('frontend/search.js'); ?>
-    <?!= include('frontend/report_create.js'); ?>
-    <?!= include('frontend/reports.js'); ?>
+    <?!= include('frontend/timezone.js', {userProps: user.props, i18n: i18n}); ?>
+    <?!= include('frontend/language.js', {i18n: i18n}); ?>
+    <?!= include('frontend/cache.js', {i18n: i18n}); ?>
+    <?!= include('frontend/report_status_badge.js', {i18n: i18n}); ?>
+    <?!= include('frontend/search.js', {i18n: i18n}); ?>
+    <?!= include('frontend/report_create.js', {i18n: i18n}); ?>
+    <?!= include('frontend/reports.js', {i18n: i18n}); ?>
     
     <script>
       window.onload = function () {

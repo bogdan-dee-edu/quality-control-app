@@ -4,6 +4,7 @@ class BaseController {
     this._user = appContainer.user;
     this._logger = appContainer.logger;
     this._cache = appContainer.cache;
+    this._i18n = appContainer.i18n;
   }
 
   get props() {
@@ -20,6 +21,10 @@ class BaseController {
 
   get cache() {
     return this._cache;
+  }
+
+  get i18n() {
+    return this._i18n;
   }
 
   _getResponseSchema() {

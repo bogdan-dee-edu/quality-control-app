@@ -1,7 +1,7 @@
 <div class="card-body relative">
   <div class="absolute top-1 left-2 font-bold text-md opacity-50"><?= item.number ?></div>
   <div class="card-title">
-    <?!= include('templates/inc.status_badge', {'type': 'checklist', 'status': item.status}) ?>
+    <?!= include('templates/inc.status_badge', {'type': 'checklist', 'status': item.status, 'i18n': i18n}) ?>
     <?= item.name ?> 
   </div>
   <p><?!= item.procedure.replaceAll(/\n/g, '<br>') ?></p>
@@ -24,12 +24,12 @@
   <div class="flex font-semibold">
     <div class="w-1/2 text-left">
       <? if (item.to_fix_date !== '') { ?>
-        Expected fix date: <span class="badge badge-warning"><?= item.to_fix_date ?></span>
+        <?= i18n.trans('checklist.expected_fix_date') ?> <span class="badge badge-warning"><?= item.to_fix_date ?></span>
       <? } ?>
     </div>
     <div class="w-1/2 text-right">
       <? if (item.fixed_date !== '') { ?>
-        Fixed date: <span class="badge badge-success"><?= item.fixed_date ?></span>
+        <?= i18n.trans('checklist.fixed_date') ?> <span class="badge badge-success"><?= item.fixed_date ?></span>
       <? } ?>
     </div>
   </div>
@@ -37,14 +37,14 @@
   <div class="card-actions justify-center">
     <? if (stageStatus.toLowerCase() !== 'completed') { ?>
       <? if (item.status === '') { ?>
-        <button class="btn w-32 md:w-1/3 btn-success" data-btn-pass="<?= item.row_index ?>" onclick="ChecklistProcessor.batchPass('<?= item.number ?>', '<?= item.row_index ?>', this);">Pass</button>
-        <button class="btn w-32 md:w-1/3 btn-error" onclick="ChecklistProcessor.failModalShow('<?= item.number ?>', '<?= item.row_index ?>', this);">Fail</button>
+        <button class="btn w-32 md:w-1/3 btn-success" data-btn-pass="<?= item.row_index ?>" onclick="ChecklistProcessor.batchPass('<?= item.number ?>', '<?= item.row_index ?>', this);"><?= i18n.trans('checklist.pass_btn') ?></button>
+        <button class="btn w-32 md:w-1/3 btn-error" onclick="ChecklistProcessor.failModalShow('<?= item.number ?>', '<?= item.row_index ?>', this);"><?= i18n.trans('checklist.fail_btn') ?></button>
 
       <? } else if (item.status === 'failed') { ?>
-        <button class="btn btn-wide btn-warning" onclick="ChecklistProcessor.fixFailed('<?= item.number ?>', '<?= item.row_index ?>', this);">Fix Now</button>
-        
+        <button class="btn btn-wide btn-warning" onclick="ChecklistProcessor.fixFailed('<?= item.number ?>', '<?= item.row_index ?>', this);"><?= i18n.trans('checklist.fix_now_btn') ?></button>
+
       <? } else if (item.status === 'passed' && item.to_fix_date === '') { ?>
-        <button class="btn btn-wide btn-default" onclick="ChecklistProcessor.revertPassed('<?= item.number ?>', '<?= item.row_index ?>', this);">Revert</button>
+        <button class="btn btn-wide btn-default" onclick="ChecklistProcessor.revertPassed('<?= item.number ?>', '<?= item.row_index ?>', this);"><?= i18n.trans('checklist.revert_btn') ?></button>
 
       <? } ?>
     <? } ?>

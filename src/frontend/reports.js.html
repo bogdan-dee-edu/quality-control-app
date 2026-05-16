@@ -1,6 +1,6 @@
 <script>
 
-const FilesListLoader = ((scriptUrl, Toast, ReportCreator) => {
+const FilesListLoader = ((scriptUrl, Toast, ReportCreator, ReportStatusBadge) => {
   const mainContainer = document.getElementById("report_files_list");
   const foldersContainer = document.getElementById("report_folders_list");
   const createForm = document.getElementById('create_report_form');
@@ -31,25 +31,6 @@ const FilesListLoader = ((scriptUrl, Toast, ReportCreator) => {
     });
   }
 
-  function renderStatusBadge(status) {
-    let color = 'neutral';
-    switch (status.toLowerCase()) {
-      case 'new':
-        color = 'warning';
-        break;
-      case 'failed':
-        color = 'error';
-        break;
-      case 'in_progress':
-        color = 'info';
-        break;
-      case 'completed':
-        color = 'success';
-        break;
-    }
-    return `<div class="badge badge-${color} badge-xs shadow-md">${status}</div>`;
-  }
-
   function render(data) {
     let result = false;
     if (data.length > 0) {
@@ -65,13 +46,13 @@ const FilesListLoader = ((scriptUrl, Toast, ReportCreator) => {
           
           <div class="list-col-grow">
             <div class="indicator indicator-end w-full">
-              <span class="indicator-item mr-4">${renderStatusBadge(item.status)}</span>
+              <span class="indicator-item mr-4">${ReportStatusBadge.render(item.status)}</span>
               <a href="${scriptUrl}?action=report&id=${item.id}" class="btn btn-block btn-default opacity-90">${item.name}</a>
             </div>
           </div>
 
           <div class="list-col-wrap">
-            <div class="text-xs opacity-60">Created at: ${displayCreatedAt}</div>
+            <div class="text-xs opacity-60"><?!= i18n.trans('js.created_at') ?> ${displayCreatedAt}</div>
           </div>
           
           <a class="btn btn-ghost btn-success btn-square" href="${item.url}" target="_blank">
@@ -91,7 +72,7 @@ const FilesListLoader = ((scriptUrl, Toast, ReportCreator) => {
     const alertHtml = `
     <li class="list-row flex justify-center items-center">
       <div role="alert" class="alert alert-default w-full">
-        No files found in this folder
+        <?!= i18n.trans('js.no_files_found') ?>
       </div>
     </li>
     `;
@@ -121,7 +102,7 @@ const FilesListLoader = ((scriptUrl, Toast, ReportCreator) => {
         if (data && data.error) {
           error = data.error;
         } else {
-          error = 'Unknown error from API';
+          error = "<?!= i18n.trans('js.unknown_error') ?>";
         }
       }
     })
@@ -137,10 +118,9 @@ const FilesListLoader = ((scriptUrl, Toast, ReportCreator) => {
 
   return {
     'init': init,
-    'run': run,
-    'renderStatusBadge': renderStatusBadge
+    'run': run
   }
 
-})('<?!= getUrl(); ?>', Toast, ReportCreator);
+})('<?!= getUrl(); ?>', Toast, ReportCreator, ReportStatusBadge);
 
 </script>

@@ -73,8 +73,8 @@ class ReportController extends BaseController {
     try {
       const report = new Report(this.logger);
       const stage = report.readStage(reportId, stageId);
-      const infoHTML = include('templates/inc.checklist_info', stage.meta);
-      const checklistHTML = include('templates/inc.checklist', stage);
+      const infoHTML = include('templates/inc.checklist_info', {...stage.meta, i18n: this.i18n});
+      const checklistHTML = include('templates/inc.checklist', {...stage, i18n: this.i18n});
 
       result.data = stage.meta;
       result.info_html = infoHTML;
@@ -138,7 +138,7 @@ class ReportController extends BaseController {
       const spreadsheetFile = report.openSpreadsheet(reportId);
       const spreadsheetNameBefore = spreadsheetFile.getName();
       report.openSheet(stageId);
-      const reportChecklist = new ReportChecklist(report, this.logger);
+      const reportChecklist = new ReportChecklist(report, this.logger, this.i18n);
 
       const submissionInfo = {
         'time': new Date(),
@@ -153,7 +153,7 @@ class ReportController extends BaseController {
       } else if (reportStatus === reportStatusList.new) { // if report still has 'new' status then change it to in progress
         reportStatus = report.changeReportStatusToInProgress(stageStatus);
       }
-      const reportStatusHTML = include('templates/inc.status_badge', {'type': 'report', 'status': reportStatus});
+      const reportStatusHTML = include('templates/inc.status_badge', {'type': 'report', 'status': reportStatus, 'i18n': this.i18n});
 
       result = { ...result, ...checklistOperationResult, ...{report: {status: reportStatus, status_html: reportStatusHTML}}};
       result.success = true;
@@ -193,13 +193,13 @@ class ReportController extends BaseController {
       const spreadsheetFile = report.openSpreadsheet(reportId);
       const spreadsheetNameBefore = spreadsheetFile.getName();
       report.openSheet(stageId);
-      const reportChecklist = new ReportChecklist(report, this.logger);
+      const reportChecklist = new ReportChecklist(report, this.logger, this.i18n);
 
       const checklistOperationResult = reportChecklist.pass(params);
 
       // Change report status to in_progress if possible:
       const reportStatus = report.changeReportStatusToInProgress(checklistOperationResult.stage.status);
-      const reportStatusHTML = include('templates/inc.status_badge', {'type': 'report', 'status': reportStatus});
+      const reportStatusHTML = include('templates/inc.status_badge', {'type': 'report', 'status': reportStatus, 'i18n': this.i18n});
 
       result = { ...result, ...checklistOperationResult, ...{report: {status: reportStatus, status_html: reportStatusHTML}}};
       result.success = true;
@@ -234,13 +234,13 @@ class ReportController extends BaseController {
       const spreadsheetFile = report.openSpreadsheet(reportId);
       const spreadsheetNameBefore = spreadsheetFile.getName();
       report.openSheet(stageId);
-      const reportChecklist = new ReportChecklist(report, this.logger);
+      const reportChecklist = new ReportChecklist(report, this.logger, this.i18n);
 
       const checklistOperationResult = reportChecklist.fail(params);
 
       // Change report status to failed
       const reportStatus = report.changeReportStatusToFailed();
-      const reportStatusHTML = include('templates/inc.status_badge', {'type': 'report', 'status': reportStatus});
+      const reportStatusHTML = include('templates/inc.status_badge', {'type': 'report', 'status': reportStatus, 'i18n': this.i18n});
 
       result = { ...result, ...checklistOperationResult, ...{report: {status: reportStatus, status_html: reportStatusHTML}}};
       result.success = true;
@@ -275,7 +275,7 @@ class ReportController extends BaseController {
       const spreadsheetFile = report.openSpreadsheet(reportId);
       const spreadsheetNameBefore = spreadsheetFile.getName();
       report.openSheet(stageId);
-      const reportChecklist = new ReportChecklist(report, this.logger);
+      const reportChecklist = new ReportChecklist(report, this.logger, this.i18n);
 
       const checklistOperationResult = reportChecklist.revertPassed(params);
       result = { ...result, ...checklistOperationResult};
@@ -313,13 +313,13 @@ class ReportController extends BaseController {
       const spreadsheetFile = report.openSpreadsheet(reportId);
       const spreadsheetNameBefore = spreadsheetFile.getName();
       report.openSheet(stageId);
-      const reportChecklist = new ReportChecklist(report, this.logger);
+      const reportChecklist = new ReportChecklist(report, this.logger, this.i18n);
 
       const checklistOperationResult = reportChecklist.fixFailed(params);
 
       // Change report status to in_progress if possible:
       const reportStatus = report.changeReportStatusToInProgress(checklistOperationResult.stage.status);
-      const reportStatusHTML = include('templates/inc.status_badge', {'type': 'report', 'status': reportStatus});
+      const reportStatusHTML = include('templates/inc.status_badge', {'type': 'report', 'status': reportStatus, 'i18n': this.i18n});
 
       result = { ...result, ...checklistOperationResult, ...{report: {status: reportStatus, status_html: reportStatusHTML}}};
       result.success = true;
@@ -354,7 +354,7 @@ class ReportController extends BaseController {
       const spreadsheetFile = report.openSpreadsheet(reportId);
       const spreadsheetNameBefore = spreadsheetFile.getName();
       report.openSheet(stageId);
-      const reportChecklist = new ReportChecklist(report, this.logger);
+      const reportChecklist = new ReportChecklist(report, this.logger, this.i18n);
 
       const data = {
         'time': new Date(),
@@ -364,7 +364,7 @@ class ReportController extends BaseController {
 
       // check if we can change report status to completed; ALL stages should be in completed status
       const reportStatus = report.changeReportStatusToCompleted();
-      const reportStatusHTML = include('templates/inc.status_badge', {'type': 'report', 'status': reportStatus});
+      const reportStatusHTML = include('templates/inc.status_badge', {'type': 'report', 'status': reportStatus, 'i18n': this.i18n});
 
       result = { ...result, ...checklistOperationResult, ...{report: {status: reportStatus, status_html: reportStatusHTML}}};
       result.success = true;
@@ -398,7 +398,7 @@ class ReportController extends BaseController {
       const report = new Report(this.logger);
       report.openSpreadsheet(reportId);
       report.openSheet(stageId);
-      const reportChecklist = new ReportChecklist(report, this.logger);
+      const reportChecklist = new ReportChecklist(report, this.logger, this.i18n);
 
       const checklistOperationResult = reportChecklist.saveNotes(params);
 

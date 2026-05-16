@@ -19,6 +19,7 @@ const ReportNotes = ((UserTimeZone, currentUserEmail) => {
 
     if (! submitListenerLoaded) {
       form.addEventListener('submit', formSubmitListener);
+      container.addEventListener('click', noteClickListener);
       submitListenerLoaded = true;
     }
   }
@@ -49,7 +50,7 @@ const ReportNotes = ((UserTimeZone, currentUserEmail) => {
         if (data && data.error) {
           error = data.error;
         } else {
-          error = 'Unknown error from API';
+          error = "<?!= i18n.trans('js.unknown_error') ?>";
         }
       }
     })
@@ -72,7 +73,6 @@ const ReportNotes = ((UserTimeZone, currentUserEmail) => {
 
       container.innerHTML = content;
       isRendered = true;
-      editOnClickListener();
     }
     renderMaxCount(data.length, maxCount);
 
@@ -80,6 +80,8 @@ const ReportNotes = ((UserTimeZone, currentUserEmail) => {
   }
 
   function renderNote(note) {
+    if (note === null) return;
+
     let time = new Date(note.time);
     let displayTime = time.toLocaleString(UserTimeZone.getDefaultLocale(), {timeZone: UserTimeZone.getTimeZoneName()});
 
@@ -106,7 +108,7 @@ const ReportNotes = ((UserTimeZone, currentUserEmail) => {
     const alertHtml = `
     <li class="list-row flex justify-center items-center">
       <div role="alert" class="alert alert-default w-full">
-        Nobody has left any notes yet.
+        <?!= i18n.trans('js.no_notes') ?>
       </div>
     </li>
     `;
@@ -140,22 +142,20 @@ const ReportNotes = ((UserTimeZone, currentUserEmail) => {
     modal.showModal();
   }
 
-  function editOnClickListener() {
-    container.querySelectorAll('.chat-bubble').forEach(elem => {
-      let parent = elem.parentElement;
-      if (parent.getAttribute('data-notes-user') == currentUserEmail) {
-        elem.addEventListener('click', function (event) {
-          showEditModal(parent.getAttribute('data-notes-id'));
-        });
-      }
-    });
+  function noteClickListener(event) {
+    const bubble = event.target.closest('.chat-bubble');
+    if (! bubble) return;
+    const parent = bubble.parentElement;
+    if (parent && parent.getAttribute('data-notes-user') == currentUserEmail) {
+      showEditModal(parent.getAttribute('data-notes-id'));
+    }
   }
 
   function blockButton() {
     const btn = form.querySelector('button[type="submit"]');
     if (btn) {
       btn.setAttribute('data-value', btn.innerHTML);
-      btn.innerHTML = 'Saving <span class="loading loading-dots loading-xs"></span>';
+      btn.innerHTML = `<?!= i18n.trans('js.saving') ?> <span class="loading loading-dots loading-xs"></span>`;
       btn.disabled = true;
     }
   }
@@ -215,16 +215,23 @@ const ReportNotes = ((UserTimeZone, currentUserEmail) => {
     .then((data) => {
       if (data && data.success) {        
         let noteHTML = renderNote(data.note);
-        if (parseInt(formData['rowIndex']) > 0) {
-          let noteElem = container.querySelector(`[data-notes-id="${data.note.row_index}"]`);
-          if (noteElem) noteElem.outerHTML = noteHTML;
-        } else {
+        if (parseInt(formData['rowIndex']) > 0) { // handling editing or deleting a note
+          let noteElem = container.querySelector(`[data-notes-id="${formData['rowIndex']}"]`);
+          if (noteElem) { // if DOM elem exists
+            if (noteHTML) { // if rendering is successful
+              noteElem.outerHTML = noteHTML;
+            } else {
+              // something went wrong with rendering, noteHTML is null
+              // then just remove noteElem
+              noteElem.remove();
+            }
+          }
+        } else { // handling new note creation
           if (data.count === 1) {
             container.innerHTML = noteHTML;
           } else {
             container.insertAdjacentHTML('beforeend', noteHTML);
           }
-          editOnClickListener();
         }
         renderMaxCount(data.count, data.maxCount);
         modal.close();
@@ -232,7 +239,7 @@ const ReportNotes = ((UserTimeZone, currentUserEmail) => {
         if (data && data.error) {
           error = data.error;
         } else {
-          error = 'Unknown error from API';
+          error = "<?!= i18n.trans('js.unknown_error') ?>";
         }
       }
     })

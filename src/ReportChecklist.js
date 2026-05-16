@@ -1,11 +1,12 @@
 class ReportChecklist {
 
   constructor(reportInstance, loggerInstance, i18nInstance) {
-    // all the errors are supposed to be catched in the front controllers
+    // all the errors are supposed to be caught in the front controllers
     // you may see some duplicate error messages in the logs
     // if that's a problem then remove all lines with this.logger.error(*);
     this._logger = loggerInstance;
-    
+    this._i18n = i18nInstance ?? null;
+
     if (! reportInstance.sheet || ! reportInstance.sheet.getSheetId()) {
       let errMsg = 'Sheet is not loaded.';
       this.logger.error(errMsg);
@@ -21,6 +22,10 @@ class ReportChecklist {
 
   get logger() {
     return this._logger;
+  }
+
+  get i18n() {
+    return this._i18n;
   }
 
   _getRangeOfChecklistNumbers() {
@@ -96,7 +101,7 @@ class ReportChecklist {
   _validateItemPosition(checklistRowIndex, checklistItemNumber) {
     const itemNumber = this._getChecklistCellByRowIndex(checklistRowIndex, 'data_header_number');
     if (parseInt(itemNumber['value']) !== parseInt(checklistItemNumber)) {
-      let errMsg = `Cheklist item number and row index don't match.`;
+      let errMsg = `Checklist item number and row index don't match.`;
       this.logger.error(errMsg);
       throw new Error(errMsg);
     }
@@ -114,8 +119,8 @@ class ReportChecklist {
   _prepareResponse(itemNumber) {
     const stageStatus = this.report._calcStageStatus(this.report.sheet); // reload stage status after actions completed
     const checklistItem = this._findChecklistItemByNumber(itemNumber);
-    const checklistItemHTML = include('templates/inc.checklist_item', {item: checklistItem, stageStatus: stageStatus});
-    const stageStatusHTML = include('templates/inc.status_badge', {'type': 'stage', 'status': stageStatus});
+    const checklistItemHTML = include('templates/inc.checklist_item', {item: checklistItem, stageStatus: stageStatus, i18n: this.i18n});
+    const stageStatusHTML = include('templates/inc.status_badge', {'type': 'stage', 'status': stageStatus, 'i18n': this.i18n});
 
     return {
       'stage': {'status': stageStatus, 'status_html': stageStatusHTML},
@@ -312,7 +317,7 @@ class ReportChecklist {
     existingNotes['range'].setValue(notes);
     
     const checklistItem = this._findChecklistItemByNumber(checklistItemNumber);
-    const checklistItemHTML = include('templates/inc.checklist_item', {item: checklistItem, stageStatus: stageStatus});
+    const checklistItemHTML = include('templates/inc.checklist_item', {item: checklistItem, stageStatus: stageStatus, i18n: this.i18n});
 
     return {
        'obj': checklistItem,
