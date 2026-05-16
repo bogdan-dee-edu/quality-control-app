@@ -36,9 +36,17 @@ class AppContainer {
     return (auth.isAuthorized() ? auth.user : null);
   }
 
+  loadUserLang() {
+    if (this._user && this._user.props && this._user.props.language) {
+      return this._user.props.language;
+    }
+
+    return this.props['defaultLang'];
+  }
+
   loadI18n(locale, loggerInstance) {
     const storage = new Storage(this.props['storageSpreadsheetId'], this.props['i18nSheetName']);
-    
+
     return new I18n(locale, storage, loggerInstance, this._cache);
   }
 
@@ -50,7 +58,7 @@ class AppContainer {
   run() {
     this._logger = this.loadAppLogger();
     this._user = this.loadUser();
-    this._i18n = this.loadI18n(this.props['defaultLang'], this._logger);
+    this._i18n = this.loadI18n(this.loadUserLang(), this._logger);
 
     return {
       'props': this.props,
