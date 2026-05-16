@@ -7,7 +7,7 @@
   <? } ?>
 
   <div class="card card-border bg-base-100 mb-2 w-full" data-checklist-item="<?= item.number ?>">
-    <?!= include('templates/inc.checklist_item', {item: item, stageStatus: meta.status}) ?>
+    <?!= include('templates/inc.checklist_item', {item: item, stageStatus: meta.status, i18n: i18n}) ?>
   </div>
 
 <? } ?>

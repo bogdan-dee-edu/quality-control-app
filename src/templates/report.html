@@ -1,10 +1,13 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="<?!= daisyTheme ?>">
   <head>
     <meta charset="utf-8">
     <title>Quality Control App - [<?= props.appId ?>]</title>
     <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <? if (daisyTheme && daisyTheme != '') { ?>
+      <link href="https://cdn.jsdelivr.net/npm/daisyui@5/themes.css" rel="stylesheet" type="text/css" />
+    <? } ?>
     <base target="_top">
   </head>
 
@@ -21,37 +24,37 @@
             <a class="btn btn-default btn-sm btn-square join-item" href="<?= report.url ?>" target="_blank">
               <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 20 20"><path fill="currentColor" d="M15.534 1.36L14.309 0H4.662c-.696 0-.965.516-.965.919v3.63H5.05V1.653c0-.154.13-.284.28-.284h6.903c.152 0 .228.027.228.152v4.82h4.913c.193 0 .268.1.268.246v11.77c0 .246-.1.283-.25.283H5.33a.287.287 0 0 1-.28-.284V17.28H3.706v1.695c-.018.6.302 1.025.956 1.025H18.06c.7 0 .939-.507.939-.969V5.187l-.35-.38l-3.116-3.446Zm-1.698.16l.387.434l2.596 2.853l.143.173h-2.653c-.2 0-.327-.033-.38-.1c-.053-.065-.084-.17-.093-.313V1.52Zm-1.09 9.147h4.577v1.334h-4.578v-1.334Zm0-2.666h4.577v1.333h-4.578V8Zm0 5.333h4.577v1.334h-4.578v-1.334ZM1 5.626v10.667h10.465V5.626H1Zm5.233 6.204l-.64.978h.64V14H3.016l2.334-3.51l-2.068-3.156H5.01L6.234 9.17l1.223-1.836h1.727L7.112 10.49L9.449 14H7.656l-1.423-2.17Z"/></svg>
             </a>
-            <a class="btn btn-default btn-sm join-item" href="<?= `${getUrl()}?action=report&id=${report.id}` ?>">Checklist</a>
-            <a class="btn btn-default btn-sm join-item" disabled>Photos</a>
-            <a class="btn btn-default btn-sm join-item" href="<?= `${getUrl()}?action=report_action_logs&id=${report.id}` ?>">Action Logs</a>
+            <a class="btn btn-default btn-sm join-item" href="<?= `${getUrl()}?action=report&id=${report.id}` ?>"><?= i18n.trans('report.tab_checklist') ?></a>
+            <a class="btn btn-default btn-sm join-item" disabled><?= i18n.trans('report.tab_photos') ?></a>
+            <a class="btn btn-default btn-sm join-item" href="<?= `${getUrl()}?action=report_action_logs&id=${report.id}` ?>"><?= i18n.trans('report.tab_action_logs') ?></a>
           </div>
           
           <div class="px-2 py-1 bg-info/50">
-            <span class="font-semibold">Device: </span>
+            <span class="font-semibold"><?= i18n.trans('report.device') ?> </span>
             <span><?= report.name ?></span>
           </div>
           <div class="px-2 py-1">
-            <span class="font-semibold">Version: </span>
-            <span data-value="device_version"><span class="skeleton skeleton-text">loading...</span></span>
+            <span class="font-semibold"><?= i18n.trans('report.version') ?> </span>
+            <span data-value="device_version"><span class="skeleton skeleton-text"><?= i18n.trans('report.loading') ?></span></span>
           </div>
           <div class="px-2 py-1">
-            <span class="font-semibold">Status: </span>
-            <span id="report_status_badge" data-report-status="<?= report.status ?>"><span class="skeleton skeleton-text">loading...</span></span>
+            <span class="font-semibold"><?= i18n.trans('report.status') ?> </span>
+            <span id="report_status_badge" data-report-status="<?= report.status ?>"><span class="skeleton skeleton-text"><?= i18n.trans('report.loading') ?></span></span>
           </div>
           <div class="px-2 py-1">
-            <span class="font-semibold">Created by: </span>
-            <span data-value="file_created_by"><span class="skeleton skeleton-text">loading...</span></span>
+            <span class="font-semibold"><?= i18n.trans('report.created_by') ?> </span>
+            <span data-value="file_created_by"><span class="skeleton skeleton-text"><?= i18n.trans('report.loading') ?></span></span>
           </div>
           <div class="px-2 py-1">
-            <span class="font-semibold"> Created at: </span>
-            <span data-timezone data-value="file_created_at"><span class="skeleton skeleton-text">loading...</span></span>
+            <span class="font-semibold"><?= i18n.trans('report.created_at') ?> </span>
+            <span data-timezone data-value="file_created_at"><span class="skeleton skeleton-text"><?= i18n.trans('report.loading') ?></span></span>
           </div>
           
         </div>
         <div class="w-full md:w-1/2 bg-base-100 rounded-box" id="stages-menu">
 
           <ul class="menu w-full">
-            <li class="menu-title">All stages:</li>
+            <li class="menu-title"><?= i18n.trans('report.all_stages') ?></li>
             <? for(let stage of report.stages){ ?>
               <li>
                 <a data-stage-id="<?= stage.id ?>" href="#">
@@ -84,8 +87,8 @@
           </div>
           
           <div class="text-right mt-2">
-            <span class="text-xs">max count: </span><span class="text-xs" id="notes_max_count">0/0</span>
-            <button class="btn btn-neutral btn-xs" onclick="ReportNotes.showAddModal();" id="notes_add_btn">add note</button>
+            <span class="text-xs"><?= i18n.trans('report.notes_max_count') ?> </span><span class="text-xs" id="notes_max_count">0/0</span>
+            <button class="btn btn-neutral btn-xs" onclick="ReportNotes.showAddModal();" id="notes_add_btn"><?= i18n.trans('report.add_note') ?></button>
           </div>
         </div>
       </div>
@@ -93,19 +96,19 @@
 
       <div class="mt-2" id="checklist">
         <div class="w-full bg-base-100 rounded-box p-4">
-          <span class="skeleton skeleton-text">Loading checklist...</span>
+          <span class="skeleton skeleton-text"><?= i18n.trans('report.loading_checklist') ?></span>
         </div>
       </div>
 
       <div class="fixed bottom-0 left-0 right-0 py-2 text-center bg-info glass hidden" id="stage_complete">
         <button class="btn btn-soft btn-default btn-wide" onclick="ChecklistProcessor.completeChecklist(this);">
-          Complete checklist
+          <?= i18n.trans('report.complete_checklist') ?>
         </button>
       </div>
 
       <div class="fixed bottom-0 left-0 right-0 py-2 text-center bg-success glass hidden" id="batch_pass_submit">
         <button class="btn btn-soft btn-default btn-wide" onclick="ChecklistProcessor.batchPassSubmit(this);">
-          Submit selected items
+          <?= i18n.trans('report.submit_selected') ?>
         </button>
       </div>
 
@@ -115,26 +118,26 @@
             <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
           </form>
 
-          <h3 class="text-lg font-bold">Why this test failed?</h3>
+          <h3 class="text-lg font-bold"><?= i18n.trans('report.fail_modal_title') ?></h3>
           <form id="fail_checklist_form">
             <div>
               <div data-alert="error"></div>
               <fieldset class="fieldset">
                 <input type="hidden" name="checklistItemNumber" value="">
                 <input type="hidden" name="checklistRowIndex" value="">
-                
-                <legend class="fieldset-legend">Provide date to fix (*required):</legend>
+
+                <legend class="fieldset-legend"><?= i18n.trans('report.fail_date_legend') ?></legend>
                 <input type="date" class="input" name="toFixDate" required>
 
-                <legend class="fieldset-legend">Provide cause of failure:</legend>
-                <textarea class="textarea h-24 w-full" placeholder="Notes" name="notes"></textarea>
-                <div class="label">Optional</div>
+                <legend class="fieldset-legend"><?= i18n.trans('report.fail_cause_legend') ?></legend>
+                <textarea class="textarea h-24 w-full" placeholder="<?= i18n.trans('report.notes_placeholder') ?>" name="notes"></textarea>
+                <div class="label"><?= i18n.trans('report.optional') ?></div>
 
               </fieldset>
             </div>
 
             <div class="modal-action justify-center">
-              <button type="submit" class="btn btn-wide btn-error">Fail</button>
+              <button type="submit" class="btn btn-wide btn-error"><?= i18n.trans('report.fail_btn') ?></button>
             </div>
           </form>
         </div>
@@ -156,13 +159,13 @@
                 <input class="hidden" type="text" name="checklistItemNumber" value="">
                 <input class="hidden" type="text" name="checklistRowIndex" value="">
 
-                <legend class="fieldset-legend">Leave your notes here:</legend>
-                <textarea class="textarea h-24 w-full" placeholder="Notes" name="notes"></textarea>
+                <legend class="fieldset-legend"><?= i18n.trans('report.notes_legend') ?></legend>
+                <textarea class="textarea h-24 w-full" placeholder="<?= i18n.trans('report.notes_placeholder') ?>" name="notes"></textarea>
               </fieldset>
             </div>
 
             <div class="modal-action">
-              <button type="submit" class="btn btn-block btn-primary">Save</button>
+              <button type="submit" class="btn btn-block btn-primary"><?= i18n.trans('report.save_btn') ?></button>
             </div>
           </form>
         </div>
@@ -183,13 +186,13 @@
               <fieldset class="fieldset">
                 <input class="hidden" type="text" name="rowIndex" value="">
 
-                <legend class="fieldset-legend">Leave your notes here:</legend>
-                <textarea class="textarea h-24 w-full" placeholder="Notes" name="notes"></textarea>
+                <legend class="fieldset-legend"><?= i18n.trans('report.notes_legend') ?></legend>
+                <textarea class="textarea h-24 w-full" placeholder="<?= i18n.trans('report.notes_placeholder') ?>" name="notes"></textarea>
               </fieldset>
             </div>
 
             <div class="modal-action">
-              <button type="submit" class="btn btn-block btn-primary">Save</button>
+              <button type="submit" class="btn btn-block btn-primary"><?= i18n.trans('report.save_btn') ?></button>
             </div>
           </form>
         </div>
@@ -200,13 +203,14 @@
 
     <?!= include('templates/inc.body_footer', {props: props, i18n: i18n, user: user}) ?>
     <?!= include('frontend/toast.js'); ?>
-    <?!= include('frontend/timezone.js', {userProps: user.props}); ?>
-    <?!= include('frontend/cache.js'); ?>
-    <?!= include('frontend/report_status_badge.js'); ?>
-    <?!= include('frontend/search.js'); ?>
-    <?!= include('frontend/report_notes.js', {user: user}); ?>
-    <?!= include('frontend/report.js'); ?>
-    <?!= include('frontend/checklist_processor.js'); ?>
+    <?!= include('frontend/timezone.js', {userProps: user.props, i18n: i18n}); ?>
+    <?!= include('frontend/language.js', {i18n: i18n}); ?>
+    <?!= include('frontend/cache.js', {i18n: i18n}); ?>
+    <?!= include('frontend/report_status_badge.js', {i18n: i18n}); ?>
+    <?!= include('frontend/search.js', {i18n: i18n}); ?>
+    <?!= include('frontend/report_notes.js', {user: user, i18n: i18n}); ?>
+    <?!= include('frontend/report.js', {i18n: i18n}); ?>
+    <?!= include('frontend/checklist_processor.js', {i18n: i18n}); ?>
     <script>
       // remember the stage id to load correct tab after the page reloading
       const ACTIVE_STAGE = localStorage.getItem('active_stage_<?!= report.id ?>');

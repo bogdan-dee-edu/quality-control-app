@@ -1,4 +1,4 @@
-class IndexController extends BaseController {
+class IndexController extends BaseControllerAbstract {
 
   changeTimeZoneAction(params) {
     let { timeZone } = { ...params };
@@ -11,7 +11,7 @@ class IndexController extends BaseController {
 
     try {
       const storage = new Storage(this.props['storageSpreadsheetId'], this.props['usersSheetName']);
-      const auth = new Auth(this.props['appId'], Session, storage);
+      const auth = new Auth(this.props['appId'], storage, this.cache);
       result.success = auth.setUserTimeZone(timeZone);
     } catch (err) {
       this.logger.error(err);
@@ -32,8 +32,27 @@ class IndexController extends BaseController {
 
     try {
       const storage = new Storage(this.props['storageSpreadsheetId'], this.props['usersSheetName']);
-      const auth = new Auth(this.props['appId'], Session, storage);
+      const auth = new Auth(this.props['appId'], storage, this.cache);
       result.success = auth.setUserTheme(theme);
+    } catch (err) {
+      this.logger.error(err);
+      result.error = err.toString();
+    }
+
+    return result;
+  }
+
+  changeLanguageAction(params) {
+    let { language } = { ...params };
+
+    let result = this._getResponseSchema();
+    try {
+      if (! this.i18n.supportedLangs.includes(language)) {
+        throw new Error(`Language "${language}" is not supported. Supported: ${this.i18n.supportedLangs.join(', ')}.`);
+      }
+      const storage = new Storage(this.props['storageSpreadsheetId'], this.props['usersSheetName']);
+      const auth = new Auth(this.props['appId'], storage, this.cache);
+      result.success = auth.setUserLanguage(language);
     } catch (err) {
       this.logger.error(err);
       result.error = err.toString();

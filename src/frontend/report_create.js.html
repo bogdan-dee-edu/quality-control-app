@@ -9,7 +9,7 @@ const ReportCreator = ((scriptUrl) => {
       const btn = form.querySelector('button[type="submit"]');
       if (btn) {
         btn.setAttribute('data-value', btn.innerHTML);
-        btn.innerHTML = 'Creating <span class="loading loading-dots loading-xs"></span>';
+        btn.innerHTML = `<?!= i18n.trans('js.creating') ?> <span class="loading loading-dots loading-xs"></span>`;
         btn.disabled = true;
       }
     }
@@ -71,10 +71,10 @@ const ReportCreator = ((scriptUrl) => {
         form.innerHTML = `
         <div class="text-center">
           <div role="alert" class="alert alert-success">
-            <span>Report has been successfully created!</span>
+            <span><?!= i18n.trans('js.report_created') ?></span>
           </div>
           <div class="mt-2">
-            <a href="${scriptUrl}?action=report&id=${data.file_id}" class="btn btn-wide btn-info">Open</a>
+            <a href="${scriptUrl}?action=report&id=${data.file_id}" class="btn btn-wide btn-info"><?!= i18n.trans('js.open') ?></a>
           </div>
         </div>
         `;
@@ -82,7 +82,7 @@ const ReportCreator = ((scriptUrl) => {
         if (data && data.error) {
           error = data.error;
         } else {
-          error = 'Unknown error from API';
+          error = "<?!= i18n.trans('js.unknown_error') ?>";
         }
       }
     })

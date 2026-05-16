@@ -60,7 +60,7 @@ const UserTimeZone = ((userPropsTimeZone, scriptUrl) => {
         .runAPI('Index', 'changeTimeZone', {timeZone: selectedValue});
     });
 
-    Toast.show('Reloading page to apply changes <span class="loading loading-dots loading-xs"></span>');
+    Toast.show(`<?!= i18n.trans('js.reloading') ?> <span class="loading loading-dots loading-xs"></span>`);
     callBackend
     .then((data) => {
       if (data && data.success) {
@@ -69,7 +69,7 @@ const UserTimeZone = ((userPropsTimeZone, scriptUrl) => {
         if (data && data.error) {
           error = data.error;
         } else {
-          error = 'Unknown error from API';
+          error = "<?!= i18n.trans('js.unknown_error') ?>";
         }
       }
     })

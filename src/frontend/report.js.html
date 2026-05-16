@@ -105,7 +105,7 @@ const ReportLoader = ((scriptUrl, Toast, ReportStatusBadge, ReportNotes) => {
         if (data && data.error) {
           error = data.error;
         } else {
-          error = 'Unknown error from API';
+          error = "<?!= i18n.trans('js.unknown_error') ?>";
         }
       }
     })
@@ -152,7 +152,7 @@ const ReportLoader = ((scriptUrl, Toast, ReportStatusBadge, ReportNotes) => {
     const alertHtml = `
     <li class="list-row flex justify-center items-center">
       <div role="alert" class="alert alert-error w-full">
-        Can not load checklist information.
+        <?!= i18n.trans('js.checklist_load_error') ?>
       </div>
     </li>
     `;

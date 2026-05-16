@@ -14,7 +14,7 @@ const CacheCleaner = (() => {
 
   function clear(btn) {
     btn.setAttribute('data-value', btn.innerHTML);
-    btn.innerHTML = 'clearing <span class="loading loading-dots loading-xs"></span>';
+    btn.innerHTML = `<?!= i18n.trans('js.clearing') ?> <span class="loading loading-dots loading-xs"></span>`;
     btn.disabled = true;
 
     callBackend('clearCache')

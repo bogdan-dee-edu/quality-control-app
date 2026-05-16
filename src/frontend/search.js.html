@@ -1,6 +1,6 @@
 <script>
 
-const FilesSearcher = ((scriptUrl, Toast) => {
+const FilesSearcher = ((scriptUrl, Toast, ReportStatusBadge) => {
   const modal = document.getElementById('search_modal');
   const form = document.getElementById('search_form');
   const searchResultContainer = document.getElementById('search_result');
@@ -27,25 +27,6 @@ const FilesSearcher = ((scriptUrl, Toast) => {
     });
   }
 
-  function renderStatusBadge(status) {
-    let color = 'neutral';
-    switch (status.toLowerCase()) {
-      case 'new':
-        color = 'warning';
-        break;
-      case 'failed':
-        color = 'error';
-        break;
-      case 'in_progress':
-        color = 'info';
-        break;
-      case 'completed':
-        color = 'success';
-        break;
-    }
-    return `<div class="badge badge-${color} badge-xs">${status}</div>`;
-  }
-
   function render(data) {
     let result = false;
 
@@ -61,7 +42,7 @@ const FilesSearcher = ((scriptUrl, Toast) => {
 
           <a href="${scriptUrl}?action=report&id=${item.id}" class="link link-hover font-semibold">${item.name}</a>
           
-          <span class="float-end">${renderStatusBadge(item.status)}</span>
+          <span class="float-end">${ReportStatusBadge.render(item.status)}</span>
         </div>
         `;
       }
@@ -75,7 +56,7 @@ const FilesSearcher = ((scriptUrl, Toast) => {
   function renderAlert() {
     const alertHtml = `
       <div role="alert" class="alert alert-default w-full">
-        No files found :(
+        <?!= i18n.trans('js.no_results') ?>
       </div>
     `;
 
@@ -88,7 +69,7 @@ const FilesSearcher = ((scriptUrl, Toast) => {
     const searchString = event.target.querySelector('input').value;
     const btn = event.target.querySelector('button');
     btn.disabled = true;
-    btn.innerHTML = 'Searching <span class="loading loading-dots loading-xs"></span>';
+    btn.innerHTML = `<?!= i18n.trans('js.searching') ?> <span class="loading loading-dots loading-xs"></span>`;
     searchResultContainer.innerHTML = '';
 
     let dataRendered = false;
@@ -102,7 +83,7 @@ const FilesSearcher = ((scriptUrl, Toast) => {
         if (data && data.error) {
           error = data.error;
         } else {
-          error = 'Unknown error from API';
+          error = "<?!= i18n.trans('js.unknown_error') ?>";
         }
       }
     })
@@ -115,7 +96,7 @@ const FilesSearcher = ((scriptUrl, Toast) => {
       if (! dataRendered) renderAlert();
       
       btn.disabled = false;
-      btn.innerHTML = 'Search';
+      btn.innerHTML = "<?!= i18n.trans('search.button') ?>";
     });
   }
 
@@ -123,6 +104,6 @@ const FilesSearcher = ((scriptUrl, Toast) => {
     'showModal': showModal
   }
 
-})('<?!= getUrl(); ?>', Toast);
+})('<?!= getUrl(); ?>', Toast, ReportStatusBadge);
 
 </script>

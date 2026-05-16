@@ -1,0 +1,41 @@
+<script>
+
+const UserLanguage = ((scriptUrl) => {
+  const select = document.getElementById('languages');
+  if (! select) return {};
+
+  select.addEventListener('change', changeLanguage);
+
+  function changeLanguage(event) {
+    const selectedValue = event.target.value;
+    let error = null;
+
+    const callBackend = new Promise((resolve, reject) => {
+      google.script.run
+        .withSuccessHandler((res) => { resolve(res); })
+        .withFailureHandler(reject)
+        .runAPI('Index', 'changeLanguage', {language: selectedValue});
+    });
+
+    Toast.show(`<?!= i18n.trans('js.reloading') ?> <span class="loading loading-dots loading-xs"></span>`);
+    callBackend
+    .then((data) => {
+      if (data && data.success) {
+        window.open(scriptUrl, '_top');
+      } else {
+        error = (data && data.error) ? data.error : "<?!= i18n.trans('js.unknown_error') ?>";
+      }
+    })
+    .catch((err) => {
+      console.error(err);
+      error = err.toString();
+    })
+    .finally(() => {
+      if (error !== null) Toast.showError(error);
+    });
+  }
+
+  return {}
+})('<?!= getUrl(); ?>');
+
+</script>

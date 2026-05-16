@@ -1,19 +1,19 @@
 <? if (type === 'report' || type === 'stage') { ?>
 
   <? if (status.toLowerCase() === 'new') { ?>
-    <div class="badge badge-warning badge-sm sh">NEW</div>
+    <div class="badge badge-warning badge-sm sh"><?= i18n.trans('status.new') ?></div>
 
   <? } else if (status.toLowerCase() === 'failed') { ?>
-    <div class="badge badge-error badge-sm">FAILED</div>
+    <div class="badge badge-error badge-sm"><?= i18n.trans('status.failed') ?></div>
 
   <? } else if (status.toLowerCase() === 'in_progress') { ?>
-    <div class="badge badge-info badge-sm">IN PROGRESS</div>
+    <div class="badge badge-info badge-sm"><?= i18n.trans('status.in_progress') ?></div>
 
   <? } else if (status.toLowerCase() === 'passed') { ?>
-    <div class="badge badge-accent badge-sm">PASSED</div>
+    <div class="badge badge-accent badge-sm"><?= i18n.trans('status.passed') ?></div>
 
   <? } else if (status.toLowerCase() === 'completed') { ?>
-    <div class="badge badge-success badge-sm">COMPLETED</div>
+    <div class="badge badge-success badge-sm"><?= i18n.trans('status.completed') ?></div>
 
   <? } else { ?>
     <div class="badge badge-neutral badge-sm"><?= status ?></div>

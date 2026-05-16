@@ -33,6 +33,10 @@ class I18n {
     return this._fallbackLang;
   }
 
+  get lang() {
+    return this._lang;
+  }
+
   _setupLang(langCode) {
     this._supportedLangs = this.loadSupportedLangs();
     if (this.supportedLangs.length === 0) {
@@ -47,7 +51,7 @@ class I18n {
       this.logger.error(error);
       throw error;
     }
-    this.lang = langCode;
+    this._lang = langCode;
   }
 
   _loadDictionary() {

@@ -1,4 +1,4 @@
-class ReportNotesController extends BaseController {
+class ReportNotesController extends BaseControllerAbstract {
   
   listAction(params) {
     let { reportId, stageId } = { ...params };
