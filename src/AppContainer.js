@@ -51,8 +51,12 @@ class AppContainer {
   }
 
   loadAppLogger() {
+    const loggerConfig = { appId: this.props['appId'], logLevel: this.props['logLevel'] };
+    if (this.props['logEnabled'] === 'false') {
+      return new AppLogger(loggerConfig, null);
+    }
     const storage = new Storage(this.props['logsSpreadsheetId'], 'logs');
-    return new AppLogger({ appId: this.props['appId'], logLevel: this.props['logLevel'] }, storage);
+    return new AppLogger(loggerConfig, storage);
   }
 
   run() {
