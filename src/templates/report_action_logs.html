@@ -56,11 +56,11 @@
 
     <?!= include('templates/inc.body_footer', {props: props, i18n: i18n, user: user}) ?>
     <?!= include('frontend/toast.js'); ?>
-    <?!= include('frontend/timezone.js', {userProps: user.props}); ?>
-    <?!= include('frontend/language.js'); ?>
-    <?!= include('frontend/cache.js'); ?>
-    <?!= include('frontend/report_status_badge.js'); ?>
-    <?!= include('frontend/search.js'); ?>
+    <?!= include('frontend/timezone.js', {userProps: user.props, i18n: i18n}); ?>
+    <?!= include('frontend/language.js', {i18n: i18n}); ?>
+    <?!= include('frontend/cache.js', {i18n: i18n}); ?>
+    <?!= include('frontend/report_status_badge.js', {i18n: i18n}); ?>
+    <?!= include('frontend/search.js', {i18n: i18n}); ?>
 
   </body>
 </html>

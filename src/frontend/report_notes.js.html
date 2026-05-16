@@ -50,7 +50,7 @@ const ReportNotes = ((UserTimeZone, currentUserEmail) => {
         if (data && data.error) {
           error = data.error;
         } else {
-          error = 'Unknown error from API';
+          error = "<?!= i18n.trans('js.unknown_error') ?>";
         }
       }
     })
@@ -108,7 +108,7 @@ const ReportNotes = ((UserTimeZone, currentUserEmail) => {
     const alertHtml = `
     <li class="list-row flex justify-center items-center">
       <div role="alert" class="alert alert-default w-full">
-        Nobody has left any notes yet.
+        <?!= i18n.trans('js.no_notes') ?>
       </div>
     </li>
     `;
@@ -155,7 +155,7 @@ const ReportNotes = ((UserTimeZone, currentUserEmail) => {
     const btn = form.querySelector('button[type="submit"]');
     if (btn) {
       btn.setAttribute('data-value', btn.innerHTML);
-      btn.innerHTML = 'Saving <span class="loading loading-dots loading-xs"></span>';
+      btn.innerHTML = `<?!= i18n.trans('js.saving') ?> <span class="loading loading-dots loading-xs"></span>`;
       btn.disabled = true;
     }
   }
@@ -239,7 +239,7 @@ const ReportNotes = ((UserTimeZone, currentUserEmail) => {
         if (data && data.error) {
           error = data.error;
         } else {
-          error = 'Unknown error from API';
+          error = "<?!= i18n.trans('js.unknown_error') ?>";
         }
       }
     })

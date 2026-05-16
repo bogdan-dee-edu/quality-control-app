@@ -2,21 +2,26 @@
 const ReportStatusBadge = {
   render: (status, size = 'xs') => {
     let color = 'neutral';
+    let label = status;
     switch (status.toLowerCase()) {
       case 'new':
         color = 'warning';
+        label = "<?!= i18n.trans('status.new') ?>";
         break;
       case 'failed':
         color = 'error';
+        label = "<?!= i18n.trans('status.failed') ?>";
         break;
       case 'in_progress':
         color = 'info';
+        label = "<?!= i18n.trans('status.in_progress') ?>";
         break;
       case 'completed':
         color = 'success';
+        label = "<?!= i18n.trans('status.completed') ?>";
         break;
     }
-    return `<div class="badge badge-${color} badge-${size}">${status}</div>`;
+    return `<div class="badge badge-${color} badge-${size}">${label}</div>`;
   }
 }
 </script>

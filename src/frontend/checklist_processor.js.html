@@ -85,7 +85,7 @@ const ChecklistProcessor = ((scriptUrl, Toast, ReportLoader) => {
         if (data && data.error) {
           error = data.error;
         } else {
-          error = 'Unknown error from API';
+          error = "<?!= i18n.trans('js.unknown_error') ?>";
         }
       }
     })
@@ -108,13 +108,13 @@ const ChecklistProcessor = ((scriptUrl, Toast, ReportLoader) => {
         
         btn.classList.remove('btn-success');
         btn.classList.add('btn-primary');
-        btn.innerText = 'Passed';
+        btn.innerText = "<?!= i18n.trans('js.pass_toggled') ?>";
     } else {
         delete batchPassKeys[checklistRowIndex];
 
         btn.classList.remove('btn-primary');
         btn.classList.add('btn-success');
-        btn.innerText = 'Pass';
+        btn.innerText = "<?!= i18n.trans('checklist.pass_btn') ?>";
     }
 
     const batchLength = Object.keys(batchPassKeys).length;
@@ -242,7 +242,7 @@ const ChecklistProcessor = ((scriptUrl, Toast, ReportLoader) => {
       renderStageStatusBadge(data);
       renderReportStatusBadge(data);
       
-      Toast.showSuccess('This stage has been successfully completed!');
+      Toast.showSuccess("<?!= i18n.trans('js.stage_completed') ?>");
       document.querySelector('[data-submitted-by]').innerText = data.stage.meta_submitted_by;
       document.querySelector('[data-submitted-at]').innerText = data.stage.meta_submitted_at;
 

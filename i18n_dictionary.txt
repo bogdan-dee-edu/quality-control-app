@@ -76,3 +76,20 @@ status.completed,COMPLETED,ЗАВЕРШЕНО
 
 # action_logs
 action_logs.load_more,Load more details,Завантажити більше
+
+# js (client-side messages)
+js.unknown_error,Unknown error from API,Невідома помилка від API
+js.no_files_found,No files found in this folder,Файлів у цій папці не знайдено
+js.no_results,No files found :(,Файлів не знайдено :(
+js.created_at,Created at:,Створено:
+js.checklist_load_error,Can not load checklist information.,Не вдалося завантажити інформацію про чеклист.
+js.creating,Creating,Створення
+js.report_created,Report has been successfully created!,Звіт успішно створено!
+js.open,Open,Відкрити
+js.searching,Searching,Пошук...
+js.saving,Saving,Збереження
+js.no_notes,Nobody has left any notes yet.,Поки що ніхто не залишив нотаток.
+js.pass_toggled,Passed,Пройдено
+js.stage_completed,This stage has been successfully completed!,Цей етап успішно завершено!
+js.clearing,Clearing,Очищення
+js.reloading,Reloading page to apply changes,Перезавантаження сторінки...

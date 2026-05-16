@@ -17,13 +17,13 @@ const UserLanguage = ((scriptUrl) => {
         .runAPI('Index', 'changeLanguage', {language: selectedValue});
     });
 
-    Toast.show('Reloading page to apply changes <span class="loading loading-dots loading-xs"></span>');
+    Toast.show(`<?!= i18n.trans('js.reloading') ?> <span class="loading loading-dots loading-xs"></span>`);
     callBackend
     .then((data) => {
       if (data && data.success) {
         window.open(scriptUrl, '_top');
       } else {
-        error = (data && data.error) ? data.error : 'Unknown error from API';
+        error = (data && data.error) ? data.error : "<?!= i18n.trans('js.unknown_error') ?>";
       }
     })
     .catch((err) => {
