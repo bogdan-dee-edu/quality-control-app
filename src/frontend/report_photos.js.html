@@ -1,0 +1,25 @@
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('[data-photo-id]').forEach(function(container) {
+      const id   = container.dataset.photoId;
+      const name = container.dataset.photoName;
+      const url  = container.dataset.photoUrl;
+
+      google.script.run
+        .withSuccessHandler(function(response) {
+          if (response && response.success) {
+            container.innerHTML =
+              '<a href="' + url + '" target="_blank" class="block rounded-box overflow-hidden hover:opacity-80 transition-opacity">' +
+                '<img src="' + response.data + '" alt="' + name + '" class="w-full h-40 object-cover">' +
+              '</a>';
+          } else {
+            container.innerHTML = '<div class="w-full h-40 flex items-center justify-center bg-base-200 rounded-box text-xs text-error">!</div>';
+          }
+        })
+        .withFailureHandler(function() {
+          container.innerHTML = '<div class="w-full h-40 flex items-center justify-center bg-base-200 rounded-box text-xs text-error">!</div>';
+        })
+        .runAPI('Photo', 'getPhoto', {id: id});
+    });
+  });
+</script>
