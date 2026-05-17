@@ -13,6 +13,10 @@ function doGet(e) {
         html = ReportPage.reportAction(e);
         break;
 
+      case 'report_photos':
+        html = ReportPage.reportPhotosAction(e);
+        break;
+
       case 'report_action_logs':
         html = ReportPage.reportActionLogsAction(e);
         break;

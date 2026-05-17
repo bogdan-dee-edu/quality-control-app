@@ -39,7 +39,7 @@ const ReportLoader = ((scriptUrl, Toast, ReportStatusBadge, ReportNotes) => {
     // load these status indicators a bit later 
     setTimeout(() => {
       loadStagesStatuses();
-      // setInterval(loadStagesStatuses, 60000); // run it every minute to update indicators periodically
+      setInterval(loadStagesStatuses, 30*1000); // run it periodically to update indicators
     }, 500);
   }
 

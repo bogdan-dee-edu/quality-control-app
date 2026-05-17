@@ -74,6 +74,13 @@ status.in_progress,IN PROGRESS,В ПРОЦЕСІ
 status.passed,PASSED,ПРОЙДЕНО
 status.completed,COMPLETED,ЗАВЕРШЕНО
 
+# photos
+photos.no_folder,No photo folder found for this report,Папку з фото для цього звіту не знайдено
+photos.no_photos,No photos found in this folder,Фото у цій папці відсутні
+photos.open_folder,Open folder,Відкрити папку
+photos.count,photos,фото
+photos.upload,Upload photos, Завантажити фото
+
 # action_logs
 action_logs.load_more,Load more details,Завантажити більше
 

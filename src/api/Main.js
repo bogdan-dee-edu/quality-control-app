@@ -9,7 +9,8 @@ function runAPI(controllerName, actionName, params = {}) {
     const controllersMap = {
       'Report': ReportController,
       'ReportNotes': ReportNotesController,
-      'Index': IndexController
+      'Index': IndexController,
+      'Photo': PhotoController
     };
     if (!controllersMap[controllerName]) {
       throw new Error(`Controller ${controllerName} not found.`);
