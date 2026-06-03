@@ -248,7 +248,7 @@ class ReportChecklist {
     ranges['meta_submitted_at'].getRange().setValue(time);
 
     // now it's assumed that checklist is completed
-    const stageStatusHTML = include('templates/inc.status_badge', {'type': 'stage', 'status': stageStatusList.completed});
+    const stageStatusHTML = include('templates/inc.status_badge', {'type': 'stage', 'status': stageStatusList.completed, i18n: this.i18n});
 
     return {
       'stage': {
