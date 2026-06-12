@@ -20,6 +20,7 @@ let PROPS_SCHEMA = {
     'reportsRootFolderId': null,
     'logLevel': null,   // controls spreadsheet write verbosity: 'info' | 'warn' | 'error'
     'logEnabled': null, // 'true' | 'false' — set to 'false' to skip spreadsheet logging entirely
+    'cacheEnabled': null, // 'true' | 'false' — set to 'false' to bypass AppCache reads/writes entirely
   },
   'optional': {
     'TEST_logsSpreadsheetId': null,

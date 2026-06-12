@@ -1,5 +1,6 @@
 class AppCache {
-  constructor() {
+  constructor(enabled = true) {
+    this._enabled = enabled;
     this._scriptCache = CacheService.getScriptCache();
 
     this.cacheMaxExpSec = 21600;
@@ -49,10 +50,16 @@ class AppCache {
     return this._scriptCache;
   }
 
+  get enabled() {
+    return this._enabled;
+  }
+
   _read(key) {
+    if (!this._enabled) return null;
+
     const value = this._scriptCache.get(key);
     // console.log(`reading cache key: ${key}`, value);
-    
+
     if (value !== null) {
       return JSON.parse(value);
     }
@@ -61,16 +68,22 @@ class AppCache {
   }
 
   _save(key, data) {
+    if (!this._enabled) return;
+
     this.scriptCache.put(this.config[key]['key'], JSON.stringify(data), this.config[key]['expiration']);
     // console.log(`updated cache key ${this.config[key].key}`);
   }
 
   _saveWithPrefix(prefix, key, data) {
+    if (!this._enabled) return;
+
     this.scriptCache.put(key, JSON.stringify(data), this.configPrefix[prefix]['expiration']);
     // console.log(`updated cache key ${this.config[key].key}`);
   }
 
   _clear(key) {
+    if (!this._enabled) return;
+
     this.scriptCache.remove(key);
   }
 
@@ -153,6 +166,8 @@ class AppCache {
   }
 
   clearFile(fileId) {
+    if (!this._enabled) return;
+
     const key = this.configPrefix.file.prefix + String(fileId);
     this._clear(key);
 
@@ -164,6 +179,8 @@ class AppCache {
   }
 
   clearAll() {
+    if (!this._enabled) return;
+
     this.scriptCache.removeAll(Object.keys(this.config));
   }
 }

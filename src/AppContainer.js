@@ -7,7 +7,7 @@ class AppContainer {
     }
 
     this._props = this._settings.scriptProps;
-    this._cache = new AppCache();
+    this._cache = new AppCache(this._props['cacheEnabled'] !== 'false');
     this._user = null;
     this._logger = null;
     this._i18n = null;
