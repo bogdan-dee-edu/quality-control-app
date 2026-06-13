@@ -1,25 +1,300 @@
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
-    document.querySelectorAll('[data-photo-id]').forEach(function(container) {
-      const id   = container.dataset.photoId;
+  document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('[data-photo-id]').forEach(function (container) {
+      const id = container.dataset.photoId;
       const name = container.dataset.photoName;
-      const url  = container.dataset.photoUrl;
+      const url = container.dataset.photoUrl;
 
       google.script.run
-        .withSuccessHandler(function(response) {
+        .withSuccessHandler(function (response) {
           if (response && response.success) {
             container.innerHTML =
               '<a href="' + url + '" target="_blank" class="block rounded-box overflow-hidden hover:opacity-80 transition-opacity">' +
-                '<img src="' + response.data + '" alt="' + name + '" class="w-full h-40 object-cover">' +
+              '<img src="' + response.data + '" alt="' + name + '" class="w-full h-40 object-cover">' +
               '</a>';
           } else {
             container.innerHTML = '<div class="w-full h-40 flex items-center justify-center bg-base-200 rounded-box text-xs text-error">!</div>';
           }
         })
-        .withFailureHandler(function() {
+        .withFailureHandler(function () {
           container.innerHTML = '<div class="w-full h-40 flex items-center justify-center bg-base-200 rounded-box text-xs text-error">!</div>';
         })
-        .runAPI('Photo', 'getPhoto', {id: id});
+        .runAPI('Photo', 'getPhoto', { id: id });
     });
   });
+</script>
+
+<script>
+  const PhotoUploader = ((Toast, scriptUrl) => {
+    const I18N = {
+      err_type: "<?!= i18n.trans('photos.upload_err_type') ?>",
+      err_size: "<?!= i18n.trans('photos.upload_err_size') ?>",
+      err_batch: "<?!= i18n.trans('photos.upload_err_batch') ?>",
+      err_total: "<?!= i18n.trans('photos.upload_err_total') ?>",
+      err_duplicate: "<?!= i18n.trans('photos.upload_err_duplicate') ?>",
+      progress: "<?!= i18n.trans('photos.upload_progress') ?>",
+      btn: "<?!= i18n.trans('photos.upload_btn') ?>",
+      done: "<?!= i18n.trans('photos.upload_done') ?>",
+      failed: "<?!= i18n.trans('photos.upload_failed') ?>",
+      constraints: "<?!= i18n.trans('photos.upload_constraints') ?>"
+    };
+
+    const config = window.__uploadConfig || {};
+    const reportId = window.__reportId;
+    const reportSerial = window.__reportSerial;
+    const photosCount = Number(window.__photosCount || 0);
+
+    const dialog = document.getElementById('upload_photos_modal');
+    if (!dialog) return null;
+
+    const dropZone = dialog.querySelector('[data-upload-dropzone]');
+    const fileInput = dialog.querySelector('[data-upload-input]');
+    const chooseBtn = dialog.querySelector('[data-upload-choose]');
+    const queueList = dialog.querySelector('[data-upload-queue]');
+    const submitBtn = dialog.querySelector('[data-upload-submit]');
+    const alertBox = dialog.querySelector('[data-alert="error"]');
+    const constraints = dialog.querySelector('[data-upload-constraints]');
+
+    const maxBytes = (config.maxFileSizeMB || 10) * 1024 * 1024;
+    let queue = [];
+    let isUploading = false;
+
+    function renderConstraints() {
+      if (!constraints) return;
+
+      constraints.textContent = I18N.constraints
+        .replace('{size}', config.maxFileSizeMB)
+        .replace('{batch}', config.maxFilesPerUpload)
+        .replace('{total}', config.maxFilesPerReport);
+    }
+
+    function showAlert(msg) {
+      if (!alertBox) return;
+
+      alertBox.innerHTML = msg
+        ? `<div role="alert" class="alert alert-error py-2"><span>${msg}</span></div>`
+        : '';
+    }
+
+    function clearAlert() {
+      showAlert('');
+    }
+
+    function fileExt(name) {
+      const idx = name.lastIndexOf('.');
+      return idx >= 0 ? name.slice(idx + 1).toLowerCase() : '';
+    }
+
+    function isDuplicate(file) {
+      return queue.some(it => it.file.name === file.name && it.file.size === file.size);
+    }
+
+    function validateForQueue(file) {
+      const ext = fileExt(file.name);
+      if (config.allowedExtensions.indexOf(ext) === -1) return I18N.err_type;
+      if (file.size > maxBytes) return I18N.err_size;
+      if (isDuplicate(file)) return I18N.err_duplicate;
+      if (queue.length + 1 > config.maxFilesPerUpload) return I18N.err_batch;
+      if (photosCount + queue.length + 1 > config.maxFilesPerReport) return I18N.err_total;
+      
+      return null;
+    }
+
+    function addFiles(files) {
+      if (isUploading) return;
+
+      clearAlert();
+      const rejected = [];
+      Array.from(files).forEach(file => {
+        const err = validateForQueue(file);
+        if (err) {
+          rejected.push(file.name + ': ' + err);
+          return;
+        }
+        queue.push({ file, status: 'pending', error: null });
+      });
+      if (rejected.length) showAlert(rejected.join('<br>'));
+      renderQueue();
+    }
+
+    function removeFromQueue(idx) {
+      if (isUploading) return;
+
+      queue.splice(idx, 1);
+      renderQueue();
+    }
+
+    function formatSize(bytes) {
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+      
+      return (bytes / 1024 / 1024).toFixed(1) + ' MB';
+    }
+
+    function statusBadge(item) {
+      switch (item.status) {
+        case 'uploading': return '<span class="loading loading-dots loading-xs"></span>';
+        case 'done': return '<span class="badge badge-success badge-sm">✓</span>';
+        case 'error': return `<span class="badge badge-error badge-sm" title="${(item.error || '').replace(/"/g, '&quot;')}">!</span>`;
+        default: return '';
+      }
+    }
+
+    function renderQueue() {
+      if (!queueList) return;
+
+      if (queue.length === 0) {
+        queueList.innerHTML = '';
+        submitBtn.disabled = true;
+        return;
+      }
+
+      queueList.innerHTML = queue.map((item, idx) => `
+        <li class="flex items-center gap-2 py-1 text-sm">
+          <span class="grow truncate">${item.file.name}</span>
+          <span class="opacity-60 shrink-0">${formatSize(item.file.size)}</span>
+          <span class="shrink-0">${statusBadge(item)}</span>
+          ${item.status === 'pending'
+            ? `<button type="button" class="btn btn-ghost btn-xs btn-circle" data-remove-idx="${idx}">✕</button>`
+            : '<span class="w-6"></span>'}
+        </li>
+      `).join('');
+
+      queueList.querySelectorAll('[data-remove-idx]').forEach(btn => {
+        btn.addEventListener('click', () => removeFromQueue(Number(btn.dataset.removeIdx)));
+      });
+      submitBtn.disabled = isUploading || !queue.some(it => it.status === 'pending');
+    }
+
+    function readAsBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const result = reader.result || '';
+          const comma = result.indexOf(',');
+          resolve(comma >= 0 ? result.slice(comma + 1) : result);
+        };
+        reader.onerror = () => reject(reader.error || new Error('FileReader error'));
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function uploadOne(file) {
+      return readAsBase64(file).then(base64Data => new Promise((resolve) => {
+        google.script.run
+          .withSuccessHandler(resolve)
+          .withFailureHandler(err => resolve({ success: false, error: (err && err.message) || String(err) }))
+          .runAPI('Photo', 'upload', {
+            reportId: reportId,
+            serial: reportSerial,
+            file: {
+              name: file.name,
+              mimeType: file.type || 'image/jpeg',
+              size: file.size,
+              base64Data: base64Data
+            }
+          });
+      }));
+    }
+
+    async function submit() {
+      if (isUploading) return;
+      
+      clearAlert();
+      const pending = queue.filter(it => it.status === 'pending');
+      if (pending.length === 0) return;
+
+      isUploading = true;
+      submitBtn.disabled = true;
+      const originalLabel = submitBtn.innerHTML;
+
+      let successCount = 0;
+      let failCount = 0;
+
+      for (let i = 0; i < pending.length; i++) {
+        const item = pending[i];
+        item.status = 'uploading';
+        renderQueue();
+        submitBtn.innerHTML = `${I18N.progress} ${i + 1}/${pending.length} <span class="loading loading-dots loading-xs"></span>`;
+
+        try {
+          const res = await uploadOne(item.file);
+          if (res && res.success) {
+            item.status = 'done';
+            successCount++;
+          } else {
+            item.status = 'error';
+            item.error = (res && res.error) || I18N.failed;
+            failCount++;
+          }
+        } catch (err) {
+          item.status = 'error';
+          item.error = err.toString();
+          failCount++;
+        }
+        renderQueue();
+      }
+
+      isUploading = false;
+
+      if (successCount > 0) {
+        const reloadUrl = `${scriptUrl}?action=report_photos&id=${encodeURIComponent(reportId)}`;
+        submitBtn.outerHTML = `<a href="${reloadUrl}" class="btn btn-wide btn-success"><?!= i18n.trans('js.open') ?></a>`;
+      } else {
+        submitBtn.innerHTML = originalLabel;
+        if (failCount > 0) {
+          Toast.showError(I18N.failed);
+        }
+        submitBtn.disabled = !queue.some(it => it.status === 'pending');
+      }
+    }
+
+    function init() {
+      renderConstraints();
+
+      chooseBtn.addEventListener('click', () => fileInput.click());
+      dropZone.addEventListener('click', (e) => {
+        if (e.target === chooseBtn) return;
+        fileInput.click();
+      });
+
+      fileInput.addEventListener('change', (e) => {
+        addFiles(e.target.files);
+        fileInput.value = '';
+      });
+
+      ['dragenter', 'dragover'].forEach(evt => {
+        dropZone.addEventListener(evt, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dropZone.classList.add('bg-base-200', 'border-primary');
+        });
+      });
+      ['dragleave', 'drop'].forEach(evt => {
+        dropZone.addEventListener(evt, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dropZone.classList.remove('bg-base-200', 'border-primary');
+        });
+      });
+      dropZone.addEventListener('drop', (e) => {
+        if (e.dataTransfer && e.dataTransfer.files) {
+          addFiles(e.dataTransfer.files);
+        }
+      });
+
+      submitBtn.addEventListener('click', submit);
+
+      dialog.addEventListener('close', () => {
+        if (queue.every(it => it.status !== 'uploading')) {
+          queue = [];
+          renderQueue();
+          clearAlert();
+        }
+      });
+    }
+
+    init();
+    return { addFiles, submit };
+  })(Toast, '<?!= getUrl(); ?>');
 </script>

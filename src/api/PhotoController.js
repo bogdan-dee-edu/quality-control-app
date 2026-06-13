@@ -20,4 +20,27 @@ class PhotoController extends BaseControllerAbstract {
     return response;
   }
 
+  uploadAction(params) {
+    const response = this._getResponseSchema();
+    try {
+      const { reportId, serial, file } = { ...params };
+      if (!reportId || !serial || !file) {
+        response.error = 'Missing reportId, serial, or file';
+        return response;
+      }
+
+      const reportPhoto = new ReportPhoto(reportId, this.logger);
+      const result = reportPhoto.uploadPhoto(serial, file);
+
+      response.success = result.success;
+      response.data = result.photo || null;
+      response.error = result.error || null;
+      response.code = result.code || null;
+    } catch (err) {
+      this.logger.error(err);
+      response.error = err.toString();
+    }
+    return response;
+  }
+
 }

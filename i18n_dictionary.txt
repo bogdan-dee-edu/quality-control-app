@@ -80,6 +80,19 @@ photos.no_photos,No photos found in this folder,Фото у цій папці в
 photos.open_folder,Open folder,Відкрити папку
 photos.count,photos,фото
 photos.upload,Upload photos, Завантажити фото
+photos.upload_modal_title,Upload photos,Завантажити фото
+photos.upload_drop_hint,Drag & drop JPG files here or,Перетягніть JPG-файли сюди або
+photos.upload_choose_files,choose files,виберіть файли
+photos.upload_btn,Upload,Завантажити
+photos.upload_constraints,JPG only · max {size} MB · up to {batch} per upload · {total} per report,JPG · до {size} МБ · до {batch} за раз · {total} на звіт
+photos.upload_err_type,File type not allowed,Тип файлу не дозволений
+photos.upload_err_size,File too large,Файл занадто великий
+photos.upload_err_batch,Too many files in one upload,Забагато файлів у завантаженні
+photos.upload_err_total,Report photo limit reached,Досягнуто ліміту фото на звіт
+photos.upload_err_duplicate,Already in the queue,Уже в черзі
+photos.upload_progress,Uploading,Завантаження
+photos.upload_done,Upload finished,Завантаження завершено
+photos.upload_failed,Upload failed,Помилка завантаження
 
 # action_logs
 action_logs.load_more,Load more details,Завантажити більше
